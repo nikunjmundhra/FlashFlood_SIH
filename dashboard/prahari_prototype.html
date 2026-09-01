@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRAHARI — Flash Flood Early Warning</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2A32;
+    --bg:#e9eddf;
+    --panel:#FFFFFF;
+    --line:#D8DBCF;
+    --river:#2C6E8E;
+    --moss:#4B6B4F;
+    --safe:#3F7D5C;
+    --moderate:#C9922B;
+    --high:#C9602B;
+    --critical:#A63C33;
+    --muted:#6B7570;
+    --font-display:'Barlow Condensed', sans-serif;
+    --font-body:'Source Sans 3', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:1180px;
+    margin:0 auto;
+    padding:20px 20px 60px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .brand h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:40px;
+    letter-spacing:0.5px;
+    margin:0;
+    line-height:0.95;
+  }
+  .brand p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:14px;
+    max-width:480px;
+  }
+  .headerRight{
+    text-align:right;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .clock{
+    font-family:var(--font-display);
+    font-size:22px;
+    color:var(--ink);
+    font-weight:600;
+  }
+  .systemStatus{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:4px;
+    font-weight:600;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--safe);}
+
+  /* ---------- LAYOUT ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:1.15fr 1fr;
+    gap:18px;
+  }
+  @media (max-width:860px){ .grid{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:18px;
+  }
+  .panelTitle{
+    font-family:var(--font-display);
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .panelTitle span.sub{
+    font-family:var(--font-body);
+    font-size:12px;
+    font-weight:500;
+    color:var(--muted);
+  }
+
+  /* ---------- MAP ---------- */
+  .mapWrap{ position:relative; }
+  #mapSvg{ width:100%; height:auto; display:block; }
+  .zoneDot{ cursor:pointer; }
+  .zoneLabel{
+    font-family:var(--font-body);
+    font-size:11px;
+    font-weight:600;
+    fill:var(--ink);
+  }
+  .zoneRing{ opacity:0.35; }
+
+  .legend{
+    display:flex;
+    gap:16px;
+    margin-top:10px;
+    flex-wrap:wrap;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .legend div{display:flex;align-items:center;gap:6px;}
+  .legendSwatch{width:9px;height:9px;border-radius:50%;}
+
+  /* ---------- ZONE LIST ---------- */
+  .zoneList{ margin-top:14px; display:flex; flex-direction:column; gap:0; }
+  .zoneRow{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:9px 4px;
+    border-top:1px solid var(--line);
+    cursor:pointer;
+    font-size:14px;
+  }
+  .zoneRow:hover{ background:#F5F6F0; }
+  .zoneRow.active{ background:#F0F2E9; font-weight:600; }
+  .zoneRowLeft{ display:flex; align-items:center; gap:9px; }
+  .riskPill{
+    font-size:11px;
+    font-weight:700;
+    padding:2px 8px;
+    color:#fff;
+    letter-spacing:0.3px;
+  }
+
+  /* ---------- DETAIL PANEL ---------- */
+  .detailHead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:14px;
+  }
+  .detailHead h2{
+    font-family:var(--font-display);
+    font-size:26px;
+    margin:0;
+    font-weight:600;
+  }
+  .detailHead p{
+    margin:2px 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .scoreBadge{
+    text-align:center;
+    padding:8px 16px;
+    color:#fff;
+    min-width:76px;
+  }
+  .scoreBadge .num{ font-family:var(--font-display); font-size:30px; font-weight:700; line-height:1;}
+  .scoreBadge .lbl{ font-size:10px; letter-spacing:0.5px; }
+
+  .metrics{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .metric{
+    border:1px solid var(--line);
+    padding:10px 12px;
+  }
+  .metric .mLabel{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.4px; }
+  .metric .mValue{ font-family:var(--font-display); font-size:24px; font-weight:600; margin-top:2px;}
+  .metric .mUnit{ font-size:12px; color:var(--muted); font-weight:400; }
+
+  .actionBox{
+    border-left:4px solid var(--river);
+    background:#F5F7F3;
+    padding:10px 14px;
+    font-size:13.5px;
+    margin-bottom:16px;
+    line-height:1.5;
+  }
+  .actionBox b{ display:block; margin-bottom:2px; font-family:var(--font-display); font-size:14px; letter-spacing:0.2px;}
+
+  canvas#trendChart{ max-height:190px; }
+
+  .btnRow{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;}
+  button{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13px;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:#fff;
+    padding:9px 14px;
+    cursor:pointer;
+  }
+  button.secondary{ background:transparent; color:var(--ink); }
+  button:hover{ opacity:0.85; }
+
+  /* ---------- BOTTOM: model + feed ---------- */
+  .bottomGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:18px;
+  }
+  @media (max-width:860px){ .bottomGrid{grid-template-columns:1fr;} }
+
+  .factorRow{
+    display:grid;
+    grid-template-columns:120px 1fr 40px;
+    align-items:center;
+    gap:10px;
+    font-size:13px;
+    margin-bottom:9px;
+  }
+  .factorBar{ height:7px; background:#E4E6DD; position:relative; }
+  .factorFill{ height:100%; background:var(--moss); }
+  .factorWeight{ text-align:right; color:var(--muted); font-size:12px; }
+
+  .feed{ max-height:230px; overflow-y:auto; }
+  .feedItem{
+    display:flex;
+    gap:10px;
+    padding:8px 2px;
+    border-top:1px solid var(--line);
+    font-size:13px;
+  }
+  .feedItem:first-child{ border-top:none; }
+  .feedTime{ color:var(--muted); font-size:11.5px; white-space:nowrap; min-width:52px; }
+  .feedDot{ width:7px; height:7px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+
+  footer{
+    margin-top:26px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+    font-size:11.5px;
+    color:var(--muted);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <h1>PRAHARI</h1>
+      <p>Flash flood early warning for hilly catchments — fusing rainfall, river gauge, soil saturation and terrain data into a live risk score.</p>
+    </div>
+    <div class="headerRight">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="systemStatus"><span class="dot" id="sysDot"></span><span id="sysLabel">All zones nominal</span></div>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- LEFT: MAP + ZONE LIST -->
+    <div class="panel">
+      <div class="panelTitle">Catchment Map <span class="sub">6 monitored zones · Kerala, Western Ghats</span></div>
+      <div class="mapWrap">
+        <svg id="mapSvg" viewBox="0 0 520 340" xmlns="http://www.w3.org/2000/svg">
+          <!-- contour lines -->
+          <g stroke="#C7CBBC" stroke-width="1" fill="none">
+            <path d="M10,40 C120,10 300,70 510,20"/>
+            <path d="M0,90 C140,50 320,120 520,70"/>
+            <path d="M0,150 C160,110 340,170 520,130"/>
+            <path d="M0,210 C160,180 350,230 520,190"/>
+            <path d="M0,270 C170,240 360,290 520,250"/>
+          </g>
+          <!-- river -->
+          <path d="M40,20 C90,90 60,150 130,190 C190,225 210,260 260,300 C300,330 340,320 400,335"
+                stroke="var(--river)" stroke-width="4" fill="none" opacity="0.75"/>
+          <!-- zones injected by JS -->
+          <g id="zoneLayer"></g>
+        </svg>
+      </div>
+      <div class="legend">
+        <div><span class="legendSwatch" style="background:var(--safe)"></span>Safe</div>
+        <div><span class="legendSwatch" style="background:var(--moderate)"></span>Moderate</div>
+        <div><span class="legendSwatch" style="background:var(--high)"></span>High</div>
+        <div><span class="legendSwatch" style="background:var(--critical)"></span>Critical</div>
+      </div>
+      <div class="zoneList" id="zoneList"></div>
+    </div>
+
+    <!-- RIGHT: DETAIL -->
+    <div class="panel">
+      <div class="detailHead">
+        <div>
+          <h2 id="dZoneName">—</h2>
+          <p id="dZoneMeta">—</p>
+        </div>
+        <div class="scoreBadge" id="scoreBadge">
+          <div class="num" id="dScore">0</div>
+          <div class="lbl" id="dLevel">LOADING</div>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="mLabel">Rainfall intensity</div><div class="mValue" id="mRain">0<span class="mUnit"> mm/hr</span></div></div>
+        <div class="metric"><div class="mLabel">River gauge level</div><div class="mValue" id="mRiver">0<span class="mUnit"> m</span></div></div>
+        <div class="metric"><div class="mLabel">Soil saturation</div><div class="mValue" id="mSoil">0<span class="mUnit"> %</span></div></div>
+        <div class="metric"><div class="mLabel">Terrain slope factor</div><div class="mValue" id="mSlope">0<span class="mUnit"> /10</span></div></div>
+      </div>
+
+      <div class="actionBox" id="actionBox">
+        <b>Recommended action</b>
+        <span id="actionText">Loading assessment…</span>
+      </div>
+
+      <canvas id="trendChart"></canvas>
+
+      <div class="btnRow">
+        <button id="alertBtn">Dispatch alert to zone</button>
+        <button class="secondary" id="simBtn">Simulate heavy rainfall event</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottomGrid">
+    <div class="panel">
+      <div class="panelTitle">Risk Model <span class="sub">trained logistic regression</span></div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;">
+        <div class="metric" style="flex:1; min-width:100px;"><div class="mLabel">Accuracy</div><div class="mValue" style="font-size:20px;">85.9%</div></div>
+        <div class="metric" style="flex:1; min-width:100px;"><div class="mLabel">ROC-AUC</div><div class="mValue" style="font-size:20px;">0.929</div></div>
+        <div class="metric" style="flex:1; min-width:100px;"><div class="mLabel">Recall</div><div class="mValue" style="font-size:20px;">88.5%</div></div>
+      </div>
+      <div id="factorList"></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5;">
+        Trained (scikit-learn) on 6,000 samples engineered from documented flash-flood drivers, 80/20 train-test
+        split. Bars show Random Forest feature importance; weights show the deployed Logistic Regression
+        coefficients (standardized → raw space) driving the live score above.
+        Thresholds: 0–34 safe · 35–59 moderate · 60–79 high · 80–100 critical.
+      </p>
+    </div>
+    <div class="panel">
+      <div class="panelTitle">Alert Feed <span class="sub">live</span></div>
+      <div class="feed" id="feed"></div>
+    </div>
+  </div>
+
+  <footer>
+    <span>PRAHARI — SIH26192 · Prototype for internal round demo · Simulated sensor data, not live telemetry</span>
+    <span>Ministry of Home Affairs · Disaster Management theme</span>
+  </footer>
+
+</div>
+
+<script>
+// ---------------- CONFIG ----------------
+const LEVELS = [
+  {name:'SAFE', min:0, color:'#3F7D5C', action:'No action required. Continue routine 6-hour monitoring cycle.'},
+  {name:'MODERATE', min:35, color:'#C9922B', action:'Alert local disaster response unit. Advise residents near riverbanks to stay informed.'},
+  {name:'HIGH', min:60, color:'#C9602B', action:'Issue public advisory. Pre-position rescue teams. Recommend evacuation of low-lying hamlets.'},
+  {name:'CRITICAL', min:80, color:'#A63C33', action:'Immediate evacuation order. Activate emergency response protocol and notify state control room.'}
+];
+function levelFor(score){
+  let l = LEVELS[0];
+  for(const x of LEVELS){ if(score>=x.min) l=x; }
+  return l;
+}
+
+const zones = [
+  {id:'z1', name:'Idukki',              x:120, y:70,  base:{rain:9,  river:2.4, soil:42, slope:8.0, drainage:2.9, histFreq:8.4}, hist:[]},
+  {id:'z2', name:'Periyar Basin',       x:230, y:150, base:{rain:12, river:3.6, soil:54, slope:6.4, drainage:3.8, histFreq:8.0}, hist:[]},
+  {id:'z3', name:'Wayanad',             x:330, y:100, base:{rain:14, river:2.9, soil:58, slope:7.6, drainage:2.7, histFreq:8.7}, hist:[]},
+  {id:'z4', name:'Chalakudy Basin',     x:400, y:230, base:{rain:7,  river:1.8, soil:33, slope:5.2, drainage:6.1, histFreq:4.5}, hist:[]},
+  {id:'z5', name:'Pamba Basin',         x:180, y:250, base:{rain:11, river:2.5, soil:47, slope:5.0, drainage:4.9, histFreq:6.9}, hist:[]},
+  {id:'z6', name:'Munnar',              x:450, y:70,  base:{rain:8,  river:1.9, soil:39, slope:7.3, drainage:4.4, histFreq:5.1}, hist:[]},
+];
+
+// ---- Trained model (Logistic Regression, scikit-learn) ----
+// Trained on 6,000 samples engineered from documented flash-flood drivers (rainfall intensity,
+// river response, soil saturation, slope, drainage density, historical flood frequency).
+// Held-out test performance: accuracy 85.9%, precision 86.5%, recall 88.5%, ROC-AUC 0.929.
+const MODEL = {
+  coef: { rain:0.09628, river:1.31073, soil:0.04517, slope:0.45709, drainage:-0.32907, histFreq:0.48240 },
+  intercept: -9.5805,
+  metrics: { accuracy:0.859, precision:0.865, recall:0.885, f1:0.875, rocAuc:0.929 },
+  rfImportance: { rain:0.114, river:0.323, soil:0.114, slope:0.143, drainage:0.110, histFreq:0.195 }
+};
+function sigmoid(x){ return 1/(1+Math.exp(-x)); }
+function modelScore(f){
+  const z = MODEL.coef.rain*f.rain + MODEL.coef.river*f.river + MODEL.coef.soil*f.soil +
+            MODEL.coef.slope*f.slope + MODEL.coef.drainage*f.drainage + MODEL.coef.histFreq*f.histFreq +
+            MODEL.intercept;
+  return sigmoid(z)*100;
+}
+
+let selectedId = zones[0].id;
+let chart;
+let simSpike = null; // {zoneId, ticksLeft}
+
+// ---------------- INIT MAP ----------------
+const zoneLayer = document.getElementById('zoneLayer');
+zones.forEach(z=>{
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.classList.add('zoneDot');
+  g.setAttribute('data-id', z.id);
+  g.innerHTML = `
+    <circle class="zoneRing" cx="${z.x}" cy="${z.y}" r="16" fill="${'#3F7D5C'}" data-ring="${z.id}"></circle>
+    <circle cx="${z.x}" cy="${z.y}" r="7" fill="${'#3F7D5C'}" data-core="${z.id}" stroke="#fff" stroke-width="1.5"></circle>
+    <text class="zoneLabel" x="${z.x+11}" y="${z.y+4}">${z.name}</text>
+  `;
+  g.addEventListener('click', ()=>{ selectedId = z.id; renderDetail(); highlightList(); });
+  zoneLayer.appendChild(g);
+});
+
+// ---------------- SIM ENGINE ----------------
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+function wobble(v, amt){ return v + (Math.random()-0.5)*amt; }
+
+function tick(){
+  zones.forEach(z=>{
+    let rainTarget = z.base.rain;
+    if(simSpike && simSpike.zoneId===z.id && simSpike.ticksLeft>0){
+      rainTarget = z.base.rain + 55;
+      simSpike.ticksLeft--;
+    }
+    z.base.rain = clamp(wobble(z.base.rain*0.7 + rainTarget*0.3, 3), 0, 90);
+    z.base.soil = clamp(z.base.soil + (z.base.rain>25 ? 2.2 : -0.6) + (Math.random()-0.5), 5, 100);
+    z.base.river = clamp(z.base.river + (z.base.rain>25 ? 0.18 : -0.03) + (Math.random()-0.5)*0.04, 0.3, 9);
+
+    const score = clamp(
+      modelScore({rain:z.base.rain, river:z.base.river, soil:z.base.soil, slope:z.base.slope,
+                  drainage:z.base.drainage, histFreq:z.base.histFreq}),
+      0, 100
+    );
+    const prevLevel = z.hist.length ? levelFor(z.hist[z.hist.length-1].score).name : 'SAFE';
+    z.hist.push({t:Date.now(), rain:z.base.rain, river:z.base.river, soil:z.base.soil, score});
+    if(z.hist.length>30) z.hist.shift();
+
+    const newLevel = levelFor(score).name;
+    if(newLevel!==prevLevel && z.hist.length>1){
+      pushFeed(z, newLevel, score);
+    }
+  });
+  renderMap();
+  if(document.getElementById('zoneList').children.length===0 || true) renderList();
+  renderDetail(false);
+}
+
+function pushFeed(zone, level, score){
+  const feed = document.getElementById('feed');
+  const lvl = LEVELS.find(l=>l.name===level);
+  const item = document.createElement('div');
+  item.className='feedItem';
+  const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  item.innerHTML = `<span class="feedTime">${time}</span>
+    <span class="feedDot" style="background:${lvl.color}"></span>
+    <span><b>${zone.name}</b> moved to <b style="color:${lvl.color}">${level}</b> (score ${Math.round(score)})</span>`;
+  feed.prepend(item);
+  while(feed.children.length>25) feed.removeChild(feed.lastChild);
+  updateSystemStatus();
+}
+
+function updateSystemStatus(){
+  const worst = zones.reduce((acc,z)=>{
+    const s = z.hist.length ? z.hist[z.hist.length-1].score : 0;
+    return Math.max(acc, s);
+  }, 0);
+  const lvl = levelFor(worst);
+  document.getElementById('sysDot').style.background = lvl.color;
+  document.getElementById('sysLabel').textContent = worst<35 ? 'All zones nominal' : `${lvl.name} risk detected in basin`;
+}
+
+// ---------------- RENDER ----------------
+function renderMap(){
+  zones.forEach(z=>{
+    const s = z.hist[z.hist.length-1]?.score ?? 0;
+    const lvl = levelFor(s);
+    document.querySelector(`[data-ring="${z.id}"]`).setAttribute('fill', lvl.color);
+    document.querySelector(`[data-core="${z.id}"]`).setAttribute('fill', lvl.color);
+  });
+}
+
+function renderList(){
+  const list = document.getElementById('zoneList');
+  list.innerHTML='';
+  zones.forEach(z=>{
+    const s = z.hist[z.hist.length-1]?.score ?? 0;
+    const lvl = levelFor(s);
+    const row = document.createElement('div');
+    row.className = 'zoneRow' + (z.id===selectedId ? ' active':'');
+    row.innerHTML = `
+      <div class="zoneRowLeft"><span class="dot" style="background:${lvl.color}"></span>${z.name}</div>
+      <span class="riskPill" style="background:${lvl.color}">${lvl.name} · ${Math.round(s)}</span>
+    `;
+    row.addEventListener('click', ()=>{ selectedId=z.id; renderDetail(); highlightList(); });
+    list.appendChild(row);
+  });
+}
+function highlightList(){
+  [...document.getElementById('zoneList').children].forEach((row,i)=>{
+    row.classList.toggle('active', zones[i].id===selectedId);
+  });
+}
+
+function renderDetail(updateChart=true){
+  const z = zones.find(zz=>zz.id===selectedId);
+  if(!z || !z.hist.length) return;
+  const last = z.hist[z.hist.length-1];
+  const lvl = levelFor(last.score);
+
+  document.getElementById('dZoneName').textContent = z.name;
+  document.getElementById('dZoneMeta').textContent = `Catchment monitoring node · slope ${z.base.slope.toFixed(1)}/10 · drainage ${z.base.drainage.toFixed(1)}/10 · hist. freq. ${z.base.histFreq.toFixed(1)}/10`;
+  document.getElementById('dScore').textContent = Math.round(last.score);
+  document.getElementById('dLevel').textContent = lvl.name;
+  document.getElementById('scoreBadge').style.background = lvl.color;
+
+  document.getElementById('mRain').innerHTML = `${last.rain.toFixed(1)}<span class="mUnit"> mm/hr</span>`;
+  document.getElementById('mRiver').innerHTML = `${last.river.toFixed(2)}<span class="mUnit"> m</span>`;
+  document.getElementById('mSoil').innerHTML = `${last.soil.toFixed(0)}<span class="mUnit"> %</span>`;
+  document.getElementById('mSlope').innerHTML = `${z.base.slope.toFixed(1)}<span class="mUnit"> /10</span>`;
+
+  document.getElementById('actionText').textContent = lvl.action;
+  document.getElementById('actionBox').style.borderLeftColor = lvl.color;
+
+  renderFactors(z, last);
+  if(updateChart!==false) updateTrendChart(z);
+}
+
+function renderFactors(z, last){
+  // Bars show relative importance from the trained Random Forest (feature_importances_);
+  // signed coefficients from the deployed Logistic Regression are shown as the weight.
+  const factors = [
+    {label:'River level',        imp: MODEL.rfImportance.river,    coef: MODEL.coef.river},
+    {label:'Historical flood freq.', imp: MODEL.rfImportance.histFreq, coef: MODEL.coef.histFreq},
+    {label:'Terrain slope',      imp: MODEL.rfImportance.slope,    coef: MODEL.coef.slope},
+    {label:'Soil saturation',    imp: MODEL.rfImportance.soil,     coef: MODEL.coef.soil},
+    {label:'Rainfall intensity', imp: MODEL.rfImportance.rain,     coef: MODEL.coef.rain},
+    {label:'Drainage density',   imp: MODEL.rfImportance.drainage, coef: MODEL.coef.drainage},
+  ];
+  const el = document.getElementById('factorList');
+  el.innerHTML = factors.map(f=>`
+    <div class="factorRow">
+      <span>${f.label}</span>
+      <div class="factorBar"><div class="factorFill" style="width:${clamp(f.imp*100*2.4,3,100)}%"></div></div>
+      <span class="factorWeight">${f.coef>=0?'+':''}${f.coef.toFixed(2)}</span>
+    </div>
+  `).join('');
+}
+
+function updateTrendChart(z){
+  const labels = z.hist.map((h,i)=> i%3===0 ? new Date(h.t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '');
+  const rainData = z.hist.map(h=>h.rain);
+  const riverData = z.hist.map(h=>h.river);
+
+  if(!chart){
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    chart = new Chart(ctx, {
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          {label:'Rainfall (mm/hr)', data:rainData, borderColor:'#2C6E8E', backgroundColor:'rgba(44,110,142,0.08)', yAxisID:'y', tension:0.3, pointRadius:0, borderWidth:2, fill:true},
+          {label:'River level (m)', data:riverData, borderColor:'#A63C33', yAxisID:'y1', tension:0.3, pointRadius:0, borderWidth:2}
+        ]
+      },
+      options:{
+        responsive:true,
+        animation:false,
+        interaction:{mode:'index', intersect:false},
+        plugins:{ legend:{ position:'bottom', labels:{boxWidth:10, font:{size:11}} } },
+        scales:{
+          y:{ position:'left', title:{display:true, text:'mm/hr', font:{size:10}}, grid:{color:'#EEEFE8'} },
+          y1:{ position:'right', title:{display:true, text:'m', font:{size:10}}, grid:{display:false} },
+          x:{ grid:{display:false}, ticks:{font:{size:9}} }
+        }
+      }
+    });
+  } else {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = rainData;
+    chart.data.datasets[1].data = riverData;
+    chart.update('none');
+  }
+}
+
+// ---------------- CONTROLS ----------------
+document.getElementById('simBtn').addEventListener('click', ()=>{
+  simSpike = {zoneId: selectedId, ticksLeft: 6};
+});
+document.getElementById('alertBtn').addEventListener('click', (e)=>{
+  const z = zones.find(zz=>zz.id===selectedId);
+  const btn = e.target;
+  const original = btn.textContent;
+  btn.textContent = 'Alert dispatched ✓';
+  pushFeed(z, levelFor(z.hist[z.hist.length-1].score).name, z.hist[z.hist.length-1].score);
+  setTimeout(()=>{ btn.textContent = original; }, 1800);
+});
+
+// ---------------- CLOCK ----------------
+function tickClock(){
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-IN', {hour12:false});
+}
+setInterval(tickClock, 1000); tickClock();
+
+// ---------------- BOOT ----------------
+for(let i=0;i<8;i++) tick(); // seed history
+setInterval(tick, 3000);
+</script>
+</body>
+</html>
