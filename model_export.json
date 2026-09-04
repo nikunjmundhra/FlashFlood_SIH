@@ -1,0 +1,66 @@
+{
+  "model_type": "RandomForestClassifier (n_estimators=30, max_depth=5)",
+  "deployment_format": "pure JavaScript (m2cgen-generated), no backend required",
+  "model_file": "prahari_rf_model.js",
+  "inference_file": "prahari_inference.js",
+  "model_file_size_kb": 120.3,
+  "target_column": "flood_label_extended",
+  "decision_threshold": 0.8,
+  "threshold_note": "This model is a smaller/shallower RF than the one originally evaluated (30 trees vs 300), retrained specifically to be small enough for a pure-JS export. Its probability calibration differs from the full model, so its best-F1 operating threshold is 0.8, NOT 0.4 or 0.5. Do not reuse thresholds across model versions without rescanning.",
+  "test_set_performance_at_threshold": {
+    "precision": 0.11,
+    "recall": 0.378,
+    "f1": 0.17,
+    "roc_auc": 0.9171
+  },
+  "feature_order": [
+    "rainfall_mm_scaled",
+    "rainfall_3d_cum_mm_scaled",
+    "river_discharge_scaled",
+    "river_discharge_roc_scaled",
+    "slope_scaled",
+    "drainage_density_scaled",
+    "discharge_sensor_outage"
+  ],
+  "scaling": {
+    "rainfall_mm": {
+      "mean": 6.395273,
+      "std": 11.011747
+    },
+    "rainfall_3d_cum_mm": {
+      "mean": 19.209031,
+      "std": 28.629555
+    },
+    "river_discharge": {
+      "mean": 55.561825,
+      "std": 157.275945
+    },
+    "river_discharge_roc": {
+      "mean": -0.340381,
+      "std": 97.906757
+    },
+    "slope": {
+      "mean": 12.053519,
+      "std": 4.154698
+    },
+    "drainage_density": {
+      "mean": 2.801709,
+      "std": 0.227898
+    }
+  },
+  "binary_features": [
+    "discharge_sensor_outage"
+  ],
+  "raw_input_fields": [
+    "rainfall_mm",
+    "rainfall_3d_cum_mm",
+    "river_discharge",
+    "river_discharge_roc",
+    "slope",
+    "drainage_density",
+    "discharge_sensor_outage"
+  ],
+  "validation_notes": "Validated against August 2018 Kerala floods (Vandiperiyar station): mean predicted probability 0.82 on the 13 confirmed flood days vs 0.44 on non-flood days that month; 9/13 flood days correctly flagged at threshold 0.8. Note most Aug-2018 rows were in the training split (random stratified split, not time-based), so this is a plausibility check, not a clean holdout test.",
+  "trained_on": "Real Kerala flash-flood data, 2001-2025, 5 stations (KUTTYADI, MUTHANKERA, PERUMANNU, THUMPAMON, VANDIPERIYAR)",
+  "train_test_split": "80/20 stratified, random_state=42, n_train=36133, n_test=9034"
+}
