@@ -1,0 +1,45 @@
+{
+  "scaling_method": "z-score (standardization: (x - mean) / std)",
+  "fit_dataset": "train_features (80% stratified split, n=36133)",
+  "random_state": 42,
+  "features": {
+    "rainfall_mm": {
+      "mean": 6.395273,
+      "std": 11.011747
+    },
+    "rainfall_3d_cum_mm": {
+      "mean": 19.209031,
+      "std": 28.629555
+    },
+    "river_discharge": {
+      "mean": 55.561825,
+      "std": 157.275945
+    },
+    "river_discharge_roc": {
+      "mean": -0.340381,
+      "std": 97.906757
+    },
+    "slope": {
+      "mean": 12.053519,
+      "std": 4.154698
+    },
+    "drainage_density": {
+      "mean": 2.801709,
+      "std": 0.227898
+    }
+  },
+  "binary_features": [
+    "discharge_sensor_outage"
+  ],
+  "model_feature_order": [
+    "rainfall_mm_scaled",
+    "rainfall_3d_cum_mm_scaled",
+    "river_discharge_scaled",
+    "river_discharge_roc_scaled",
+    "slope_scaled",
+    "drainage_density_scaled",
+    "discharge_sensor_outage"
+  ],
+  "target_column": "flood_label_extended",
+  "benchmark_target_column": "flood_label_primary"
+}
