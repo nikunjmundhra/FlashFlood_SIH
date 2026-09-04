@@ -1,0 +1,6 @@
+station,river,basin,district,latitude,longitude,elevation,slope,aspect,drainage_density,distance_to_stream,land_cover,soil_type,data_source
+KUTTYADI,Kuttyadi,West flowing rivers from Tadri to Kanyakumari,KOZHIKODE,11.65083333,75.75833333,42.0,12.5,270.0,2.95,95.0,Dense Tropical / Plantation,Lateritic / Sandy Loam,GIS-DERIVED (USGS SRTM 30m DEM / ISRO Bhuvan)
+MUTHANKERA,Cauvery,Cauvery,WAYANAD,11.80805556,76.08416667,740.0,14.2,285.0,2.45,150.0,Deciduous Forest / Plantation,Forest Loam / Red Loamy,GIS-DERIVED (USGS SRTM 30m DEM / ISRO Bhuvan)
+PERUMANNU,Valapatnam,West flowing rivers from Tadri to Kanyakumari,KANNUR,11.9823,75.58415833,28.0,8.4,275.0,2.65,110.0,Mixed Vegetation / Agriculture,Lateritic / Red Loam,GIS-DERIVED (USGS SRTM 30m DEM / ISRO Bhuvan)
+THUMPAMON,Pamba,West flowing rivers from Tadri to Kanyakumari,PATHANAMTHITTA,9.22777778,76.7,35.0,6.8,260.0,3.1,80.0,Agricultural / Rubber Plantation,Lateritic / Alluvial,GIS-DERIVED (USGS SRTM 30m DEM / ISRO Bhuvan)
+VANDIPERIYAR,Periyar,West flowing rivers from Tadri to Kanyakumari,IDUKKI,9.57333333,77.09055556,785.0,18.4,245.0,2.85,120.0,Highland Forest / Tea Plantation,Clay Loam / Red Lateritic,GIS-DERIVED (USGS SRTM 30m DEM / ISRO Bhuvan)

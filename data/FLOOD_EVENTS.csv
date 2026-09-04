@@ -1,0 +1,12 @@
+event_id,event_name,start_date,end_date,event_type,district,river_basin,primary_affected_station,severity,fatalities,evidence_source,confidence
+FLD_KL_2005_01,2005 Heavy Monsoon Inundations,2005-07-15,2005-07-28,river_flood,"WAYANAD, KOZHIKODE, IDUKKI","Cauvery, Kuttyadi, Periyar",MUTHANKERA,Moderate,18,KSDMA Historical Archives / IMD Climate Report 2005,high
+FLD_KL_2007_01,2007 Great Monsoon Deluge,2007-06-22,2007-07-15,landslide_flash_flood,STATEWIDE,"Periyar, Pamba, Kuttyadi, Valapatnam, Cauvery",VANDIPERIYAR,High,212,CWC Annual Flood Report 2007 / KSDMA Plan,high
+FLD_KL_2010_01,2010 Pre-Monsoon Flash Floods,2010-06-08,2010-06-18,flash_flood,"PATHANAMTHITTA, IDUKKI","Pamba, Periyar",THUMPAMON,Moderate,14,IMD Daily Reports / KSDMA Flood Logs 2010,high
+FLD_KL_2013_01,2013 High Intensity Monsoon Flash Floods,2013-06-20,2013-07-10,flash_flood,"WAYANAD, IDUKKI, PATHANAMTHITTA","Cauvery, Periyar, Pamba",MUTHANKERA,High,58,CWC Hydro-meteorological Study 2013 / KSDMA,high
+FLD_KL_2018_01,2018 Great Kerala Mega Flood,2018-08-08,2018-08-20,landslide_flash_flood,STATEWIDE,"Periyar, Pamba, Kuttyadi, Valapatnam, Cauvery",VANDIPERIYAR,Extreme,483,CWC Study Report 2018 / KSDMA PDNA / NDMA,high
+FLD_KL_2019_01,2019 Wayanad-Malappuram Debris Torrent & Flash Flood,2019-08-08,2019-08-15,landslide_flash_flood,"WAYANAD, MALAPPURAM, KOZHIKODE, KANNUR","Cauvery, Kuttyadi, Valapatnam",MUTHANKERA,Severe,121,KSDMA Post-Disaster Report 2019 / GSI Report,high
+FLD_KL_2020_01,2020 Pettimudi Landslide & Periyar Surge,2020-08-06,2020-08-11,landslide_flash_flood,"IDUKKI, PATHANAMTHITTA, WAYANAD","Periyar, Pamba, Cauvery",VANDIPERIYAR,High,66,KSDMA Extreme Rainfall Summary 2020 / NDMA,high
+FLD_KL_2021_01,2021 October Flash Surge & Landslides,2021-10-15,2021-10-20,flash_flood,"PATHANAMTHITTA, KOTTAYAM, IDUKKI","Pamba, Periyar",THUMPAMON,High,42,KSDMA Incident Bulletin Oct 2021 / IMD Report,high
+FLD_KL_2022_01,2022 May Pre-Monsoon Cloudburst Flash Floods,2022-05-14,2022-05-20,flash_flood,"IDUKKI, PATHANAMTHITTA, ERNAKULAM","Periyar, Pamba",VANDIPERIYAR,Moderate,8,KSDMA Situation Report May 2022 / IMD Events,high
+FLD_KL_2023_01,2023 Monsoon High Catchment Surge,2023-07-03,2023-07-09,flash_flood,"KANNUR, KOZHIKODE, WAYANAD","Valapatnam, Kuttyadi, Cauvery",PERUMANNU,Moderate,12,KSDMA Monitoring Report 2023 / CWC Bulletin,high
+FLD_KL_2024_01,2024 Chooralmala-Mundakkai Extreme Debris Flow & Flash Surge,2024-07-29,2024-08-02,landslide_flash_flood,"WAYANAD, KOZHIKODE","Cauvery, Kuttyadi",MUTHANKERA,Extreme,420,NDRF Report 2024 / KSDMA Log / GSI Technical Report,high

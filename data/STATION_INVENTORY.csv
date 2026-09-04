@@ -1,0 +1,41 @@
+station_name,river,basin,district,latitude,longitude,total_records,valid_records,missing_records,pct_missing,first_date,last_date,longest_gap_days,is_hilly_catchment
+VANDIPERIYAR,Periyar,West flowing rivers from Tadri to Kanyakumari,IDUKKI,9.57333333,77.09055556,14837,14837,0,0.0,2001-01-01,2025-08-21,214,True
+PERUMANNU,Valapatnam,West flowing rivers from Tadri to Kanyakumari,KANNUR,11.9823,75.58415833,8797,8797,0,0.0,2001-01-01,2025-09-09,66,True
+ERINJIPUZHA,Payaswani,West flowing rivers from Tadri to Kanyakumari,KASARAGOD,12.49583333,75.15694444,8772,8772,0,0.0,2001-01-01,2025-09-30,51,False
+KUTTYADI,Kuttyadi,West flowing rivers from Tadri to Kanyakumari,KOZHIKODE,11.65083333,75.75833333,8759,8759,0,0.0,2001-01-01,2025-10-31,65,True
+PULAMANTHOLE,Bharathapuzha,West flowing rivers from Tadri to Kanyakumari,PALAKKAD,10.89805556,76.19194444,8660,8660,0,0.0,2001-01-01,2025-10-31,62,True
+THUMPAMON,Pamba,West flowing rivers from Tadri to Kanyakumari,PATHANAMTHITTA,9.22777778,76.7,8549,8549,0,0.0,2001-01-01,2025-11-30,162,True
+RAMAMANGALAM,Muvattupuzha,West flowing rivers from Tapi to Tadri,ERNAKULAM,9.94361111,76.47833333,8519,8519,0,0.0,2001-01-01,2025-12-31,32,False
+PATTAZHY,Kallada,West flowing rivers from Tadri to Kanyakumari,Kollam,9.07277778,76.76111111,8502,8502,0,0.0,2001-01-01,2025-03-31,27,False
+KUNIYIL,Chaliyar,West flowing rivers from Tapi to Tadri,MALAPPURAM,11.23944444,76.02333333,8500,8500,0,0.0,2001-01-01,2025-10-31,121,True
+KALLOOPPARA,Pamba,West flowing rivers from Tadri to Kanyakumari,PATHANAMTHITTA,9.40361111,76.65027778,8494,8494,0,0.0,2001-01-01,2025-10-31,172,True
+NEELEESWARAM,Periyar,West flowing rivers from Tadri to Kanyakumari,ERNAKULAM,10.18361111,76.49555556,8478,8478,0,0.0,2001-01-01,2025-12-31,29,False
+MUTHANKERA,Cauvery,Cauvery,WAYANAD,11.80805556,76.08416667,8439,8439,0,0.0,2001-01-01,2025-08-02,52,True
+MALAKKARA,Pamba,West flowing rivers from Tapi to Tadri,PATHANAMTHITTA,9.32916667,76.66388889,8387,8387,0,0.0,2001-01-01,2025-03-31,124,True
+AYILAM ,Vamanapuram,West flowing rivers from Tadri to Kanyakumari,THIRUVANANTHAPURAM,8.71527778,76.85416667,8382,8382,0,0.0,2001-01-01,2025-11-27,183,False
+MANKARA,Bharathapuzha,West flowing rivers from Tadri to Kanyakumari,PALAKKAD,10.76111111,76.48611111,8179,8179,0,0.0,2001-01-01,2025-12-17,115,True
+PUDUR,Bharathapuzha,West flowing rivers from Tadri to Kanyakumari,PALAKKAD,10.7775,76.51222222,8109,8109,0,0.0,2001-01-01,2025-07-11,94,True
+KIDANGOOR,Meenachil,West flowing rivers from Tapi to Tadri,KOTTAYAM,9.675,76.60277778,8101,8101,0,0.0,2001-01-01,2025-11-15,142,True
+KALAMPUR,Muvattupuzha,West flowing rivers from Tapi to Tadri,ERNAKULAM,9.99055556,76.63222222,8007,8007,0,0.0,2001-01-01,2025-12-31,204,False
+KARATHODU,Kadalundi,West flowing rivers from Tadri to Kanyakumari,MALAPPURAM,11.05694444,76.03944444,7978,7978,0,0.0,2001-01-01,2025-11-14,184,True
+KUMBIDI,Bharathapuzha,West flowing rivers from Tadri to Kanyakumari,PALAKKAD,10.85444444,76.02,7742,7742,0,0.0,2001-01-01,2025-06-11,66,True
+ARANGALI,Periyar,West flowing rivers from Tadri to Kanyakumari,THRISSUR,10.28611111,76.32222222,7518,7518,0,0.0,2001-01-01,2025-12-10,192,True
+KOTTATHARA,Cauvery,Cauvery,PALGHAT,11.12333333,76.67944444,2444,2444,0,0.0,2017-06-15,2025-12-31,232,False
+THOTTATHINKADAVU,Chaliyar,West flowing rivers from Tadri to Kanyakumari,KOZHIKODE,11.36194444,76.00194444,2248,2248,0,0.0,2019-06-14,2025-10-31,66,True
+MADAMON,Pamba,West flowing rivers from Tapi to Tadri,PATHANAMTHITTA,9.36388889,76.83777778,2246,2246,0,0.0,2019-06-28,2025-12-29,65,True
+VELLAIKADAVU,Karamana,West flowing rivers from Tadri to Kanyakumari,THIRUVANANTHAPURAM,8.49805556,77.0125,2245,2245,0,0.0,2019-07-07,2025-12-31,65,False
+ARUVIPURAM,Neyyar,West flowing rivers from Tadri to Kanyakumari,THIRUVANANTHAPURAM,8.42,77.0925,2227,2227,0,0.0,2019-06-02,2025-10-31,65,False
+ARKKANNUR,Ithikkara,West flowing rivers from Tadri to Kanyakumari,Kollam,8.8725,76.84666667,2199,2199,0,0.0,2019-07-07,2025-11-30,65,False
+NELLIPPALLI,Kallada,West flowing rivers from Tadri to Kanyakumari,Kollam,9.02777778,76.92472222,2188,2188,0,0.0,2019-06-19,2025-11-30,65,False
+POOKKAYAM,Chandragiri,West flowing rivers from Tadri to Kanyakumari,KASARAGOD,12.45845833,75.27633889,2164,2164,0,0.0,2019-06-21,2025-10-31,65,False
+CHAKKALAKUTH,Kudhirapuzha,West flowing rivers from Tadri to Kanyakumari,MALAPPURAM,11.26416667,76.23861111,2001,2001,0,0.0,2019-06-20,2025-09-15,108,True
+PERUVAMPADAM,Chaliyar,West flowing rivers from Tapi to Tadri,MALAPPURAM,11.3153,76.19635,1940,1940,0,0.0,2019-06-20,2025-09-30,158,True
+MANAKKAD,Muvattupuzha,West flowing rivers from Tadri to Kanyakumari,IDUKKI,9.90888889,76.69611111,1762,1762,0,0.0,2019-07-19,2025-08-28,65,True
+PALLIPPADY,Muvattupuzha,West flowing rivers from Tadri to Kanyakumari,ERNAKULAM,10.03944444,76.61638889,1688,1688,0,0.0,2019-06-11,2025-08-02,105,False
+PULLAKKAYAR,Pamba,West flowing rivers from Tapi to Tadri,KOTTAYAM,9.57444444,76.88611111,1637,1637,0,0.0,2019-09-18,2025-08-20,172,True
+MANIKAL,Pamba,West flowing rivers from Tadri to Kanyakumari,KOTTAYAM,9.53111111,76.91222222,1611,1611,0,0.0,2019-09-17,2025-08-21,96,True
+PALAKADAVU,Sani,West flowing rivers from Tadri to Kanyakumari,THRISSUR,10.425,76.23777778,1593,1593,0,0.0,2019-07-22,2025-09-30,149,True
+ADKASTHALA,Shiriya,West flowing rivers from Tadri to Kanyakumari,KASARAGOD,12.675,75.115,1560,1560,0,0.0,2019-07-08,2025-10-31,162,False
+KALATHUKADAVU,Meenachil,West flowing rivers from Tapi to Tadri,KOTTAYAM,9.71972222,76.77833333,1546,1546,0,0.0,2019-07-23,2025-09-19,175,True
+KONDAZHY,"Bharatapuzha",West flowing rivers from Tadri to Kanyakumari,Trichur,10.72333333,76.40194444,1301,1301,0,0.0,2019-08-27,2025-11-13,222,False
+KOTTAPURAM,Keecheri,West flowing rivers from Tadri to Kanyakumari,THRISSUR,10.67777778,76.20055556,1229,1229,0,0.0,2019-06-26,2025-07-18,207,True
