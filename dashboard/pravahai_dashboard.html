@@ -1,464 +1,526 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PravahAI — Flash Flood Early Warning</title>
-<!-- Leaflet CSS & JS for Interactive Geospatial Mapping -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Chart.js for Telemetry Trends -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PravahAI — Flash Flood Early Warning</title>
+  <!-- Leaflet CSS & JS for Interactive Geospatial Mapping -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Chart.js for Telemetry Trends -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Belleza&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<div class="app">
+  <div class="ambientGlowCanvas" aria-hidden="true"></div>
+  <div class="app">
 
-  <header>
-    <div class="brand">
-      <h1>PravahAI</h1>
-      <p>Flash flood early warning for hilly catchments — a real Random Forest model, trained on real CWC/IMD Kerala data, fusing rainfall and river discharge into a live risk score.</p>
-    </div>
-    <div class="headerRight">
-      <div style="font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Data Refresh In</div>
-      <div class="clock" id="clock" style="font-size:24px; font-weight:700; color:var(--high); letter-spacing:1px;">00:30</div>
-      <div class="systemStatus"><span class="dot" id="sysDot"></span><span id="sysLabel">All stations nominal</span></div>
-    </div>
-  </header>
-
-  <div class="grid">
-
-    <!-- LEFT: LEAFLET MAP + ZONE LIST -->
-    <div class="panel">
-      <div class="panelTitle">
-        <span>Catchment Map</span>
-        <span class="sub">5 real CWC gauge stations · Kerala</span>
+    <header>
+      <div class="headerLeft">
+        <p>Flash flood early warning for hilly catchments — a real Random Forest model, trained on real CWC/IMD Kerala
+          data, fusing rainfall and river discharge into a live risk score.</p>
       </div>
-
-      <div class="mapHeaderRow">
-        <div class="layerBtnGroup">
-          <button type="button" class="layerBtn active" id="btnTopo" onclick="setBaseLayer('topo')" title="Topographic Elevation & Contours">🏔️ Topo</button>
-          <button type="button" class="layerBtn" id="btnSat" onclick="setBaseLayer('satellite')" title="Aerial Satellite Imagery">🛰️ Satellite</button>
-          <button type="button" class="layerBtn" id="btnClean" onclick="setBaseLayer('clean')" title="Clean Cartography">🗺️ Clean</button>
+      <div class="headerCenter">
+        <h1 class="brandTitle">PravahAI</h1>
+      </div>
+      <div class="headerRight">
+        <div
+          style="font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">
+          Data Refresh In</div>
+        <div class="clock" id="clock" style="font-size:24px; font-weight:700; color:var(--high); letter-spacing:1px;">
+          00:30</div>
+        <div class="systemStatus"><span class="dot" id="sysDot"></span><span id="sysLabel">All stations nominal</span>
         </div>
-        <button type="button" class="fitBoundsBtn" onclick="fitAllStations()" title="Reset view to fit all monitored Kerala stations">⛶ Fit Kerala Extent</button>
+        <div><span class="ambientPill"><span class="ambientDot"></span><span id="ambientStatusLabel">Ambient:
+              Nominal</span></span></div>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- LEFT: LEAFLET MAP + ZONE LIST -->
+      <div class="panel">
+        <div class="panelTitle">
+          <span>Catchment Map</span>
+          <span class="sub">5 real CWC gauge stations · Kerala</span>
+        </div>
+
+        <div class="mapHeaderRow">
+          <div class="layerBtnGroup">
+            <button type="button" class="layerBtn active" id="btnTopo" onclick="setBaseLayer('topo')"
+              title="Topographic Elevation & Contours">🏔️ Topo</button>
+            <button type="button" class="layerBtn" id="btnSat" onclick="setBaseLayer('satellite')"
+              title="Aerial Satellite Imagery">🛰️ Satellite</button>
+            <button type="button" class="layerBtn" id="btnClean" onclick="setBaseLayer('clean')"
+              title="Clean Cartography">🗺️ Clean</button>
+          </div>
+          <button type="button" class="fitBoundsBtn" onclick="fitAllStations()"
+            title="Reset view to fit all monitored Kerala stations">⛶ Fit Kerala Extent</button>
+        </div>
+
+        <div class="mapWrap">
+          <div id="leafletMap"></div>
+          <div class="mapOverlayBadge">
+            <span class="liveIndicator"></span> Western Ghats Corridor
+          </div>
+        </div>
+
+        <div class="legend">
+          <div><span class="legendSwatch" style="background:var(--safe)"></span>Safe (below 40)</div>
+          <div><span class="legendSwatch" style="background:var(--moderate)"></span>Watch (40–79)</div>
+          <div><span class="legendSwatch" style="background:var(--critical)"></span>High risk (≥80 — model's operating
+            threshold)</div>
+        </div>
+        <div class="zoneList" id="zoneList"></div>
       </div>
 
-      <div class="mapWrap">
-        <div id="leafletMap"></div>
-        <div class="mapOverlayBadge">
-          <span class="liveIndicator"></span> Western Ghats Corridor
+      <!-- RIGHT: DETAIL -->
+      <div class="panel detailPanel" id="detailPanel">
+        <div class="detailHead">
+          <div>
+            <h2 id="dZoneName">—</h2>
+            <p id="dZoneMeta">—</p>
+          </div>
+          <div class="scoreBadge" id="scoreBadge">
+            <div class="num" id="dScore">0</div>
+            <div class="lbl" id="dLevel">LOADING</div>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="mLabel">Rainfall (today)</div>
+            <div class="mValue" id="mRain">0<span class="mUnit"> mm</span></div>
+          </div>
+          <div class="metric">
+            <div class="mLabel">3-day cumulative rain</div>
+            <div class="mValue" id="mCum">0<span class="mUnit"> mm</span></div>
+          </div>
+          <div class="metric">
+            <div class="mLabel">River discharge</div>
+            <div class="mValue" id="mDischarge">0<span class="mUnit"> m³/s</span></div>
+          </div>
+          <div class="metric">
+            <div class="mLabel">Discharge rate of change</div>
+            <div class="mValue" id="mRoc">0<span class="mUnit"> m³/s</span></div>
+          </div>
+        </div>
+        <div id="sensorOutageBanner"
+          style="display:none; font-size:12.5px; font-weight:600; color:var(--high); border:1px solid var(--high); padding:6px 10px; margin-bottom:14px;">
+          ⚠ Discharge sensor outage at this station — model is inferring on stale/missing data</div>
+
+        <div class="actionBox" id="actionBox">
+          <b>Recommended action</b>
+          <span id="actionText">Loading assessment…</span>
+        </div>
+
+        <canvas id="trendChart"></canvas>
+
+        <div class="btnRow">
+          <button class="actionBtn" id="alertBtn">Dispatch alert to zone</button>
+          <button class="actionBtn secondary" id="simBtn">Simulate heavy rainfall event</button>
         </div>
       </div>
 
-      <div class="legend">
-        <div><span class="legendSwatch" style="background:var(--safe)"></span>Safe (below 40)</div>
-        <div><span class="legendSwatch" style="background:var(--moderate)"></span>Watch (40–79)</div>
-        <div><span class="legendSwatch" style="background:var(--critical)"></span>High risk (≥80 — model's operating threshold)</div>
-      </div>
-      <div class="zoneList" id="zoneList"></div>
     </div>
 
-    <!-- RIGHT: DETAIL -->
-    <div class="panel">
-      <div class="detailHead">
-        <div>
-          <h2 id="dZoneName">—</h2>
-          <p id="dZoneMeta">—</p>
+    <div class="bottomGrid">
+      <div class="panel">
+        <div class="panelTitle">Risk Model <span class="sub">Random Forest · real Kerala data</span></div>
+        <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;">
+          <div class="metric" style="flex:1; min-width:90px;">
+            <div class="mLabel">Precision</div>
+            <div class="mValue" style="font-size:20px;">0.110</div>
+          </div>
+          <div class="metric" style="flex:1; min-width:90px;">
+            <div class="mLabel">Recall</div>
+            <div class="mValue" style="font-size:20px;">0.378</div>
+          </div>
+          <div class="metric" style="flex:1; min-width:90px;">
+            <div class="mLabel">F1</div>
+            <div class="mValue" style="font-size:20px;">0.170</div>
+          </div>
+          <div class="metric" style="flex:1; min-width:90px;">
+            <div class="mLabel">ROC-AUC</div>
+            <div class="mValue" style="font-size:20px;">0.917</div>
+          </div>
         </div>
-        <div class="scoreBadge" id="scoreBadge">
-          <div class="num" id="dScore">0</div>
-          <div class="lbl" id="dLevel">LOADING</div>
+        <div id="factorList"></div>
+        <p style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5;">
+          Trained on real CWC river discharge + rainfall records, 2001–2025, across 5 Kerala gauge stations
+          (KUTTYADI, MUTHANKERA, PERUMANNU, THUMPAMON, VANDIPERIYAR). Flood events are rare (~1% of days), so this
+          is deployed as a <b>screening / early-warning signal, not a precise detector</b> — of every high-risk alert
+          it raises, roughly 1 in 9 corresponds to a real flood day, and it catches roughly 1 in 3 real flood events
+          at its operating threshold (0.8). Validated against the August 2018 Kerala floods at VANDIPERIYAR (9 of 13
+          confirmed flood days correctly flagged) — note this check is not a clean time-based holdout, since most of
+          those days were included in the training split.
+        </p>
+      </div>
+      <div class="panel">
+        <div class="panelTitle">2018 Flood Model Prediction <span class="sub">Vandiperiyar Station · August 2018</span>
         </div>
-      </div>
+        <div
+          style="font-size:12.5px; line-height:1.45; color:var(--ink); background:#F5F7F3; border-left:4px solid var(--critical); padding:8px 12px; margin-bottom:12px;">
+          <b>Model Validation (2018 Great Kerala Flood):</b> Model predicted flood risk with <b>82% mean probability</b>
+          across 13 confirmed flood days, correctly flagging peak flooding at <b>98.4% critical risk</b>.
+        </div>
 
-      <div class="metrics">
-        <div class="metric"><div class="mLabel">Rainfall (today)</div><div class="mValue" id="mRain">0<span class="mUnit"> mm</span></div></div>
-        <div class="metric"><div class="mLabel">3-day cumulative rain</div><div class="mValue" id="mCum">0<span class="mUnit"> mm</span></div></div>
-        <div class="metric"><div class="mLabel">River discharge</div><div class="mValue" id="mDischarge">0<span class="mUnit"> m³/s</span></div></div>
-        <div class="metric"><div class="mLabel">Discharge rate of change</div><div class="mValue" id="mRoc">0<span class="mUnit"> m³/s</span></div></div>
-      </div>
-      <div id="sensorOutageBanner" style="display:none; font-size:12.5px; font-weight:600; color:var(--high); border:1px solid var(--high); padding:6px 10px; margin-bottom:14px;">⚠ Discharge sensor outage at this station — model is inferring on stale/missing data</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+          <div class="metric" style="flex:1; min-width:80px; padding:6px 8px;">
+            <div class="mLabel" style="font-size:10px;">Flood Days</div>
+            <div class="mValue" style="font-size:18px;">13</div>
+          </div>
+          <div class="metric" style="flex:1; min-width:80px; padding:6px 8px;">
+            <div class="mLabel" style="font-size:10px;">Flagged (≥0.8)</div>
+            <div class="mValue" style="font-size:18px; color:var(--safe);">9 / 13</div>
+          </div>
+          <div class="metric" style="flex:1; min-width:80px; padding:6px 8px;">
+            <div class="mLabel" style="font-size:10px;">Mean Risk</div>
+            <div class="mValue" style="font-size:18px; color:var(--high);">82.0%</div>
+          </div>
+          <div class="metric" style="flex:1; min-width:80px; padding:6px 8px;">
+            <div class="mLabel" style="font-size:10px;">Peak Risk</div>
+            <div class="mValue" style="font-size:18px; color:var(--critical);">98.4%</div>
+          </div>
+        </div>
 
-      <div class="actionBox" id="actionBox">
-        <b>Recommended action</b>
-        <span id="actionText">Loading assessment…</span>
-      </div>
-
-      <canvas id="trendChart"></canvas>
-
-      <div class="btnRow">
-        <button class="actionBtn" id="alertBtn">Dispatch alert to zone</button>
-        <button class="actionBtn secondary" id="simBtn">Simulate heavy rainfall event</button>
+        <div class="feed" id="flood2018Feed"
+          style="max-height:165px; overflow-y:auto; border:1px solid var(--line); padding:6px 8px; background:#fff;">
+          <table style="width:100%; border-collapse:collapse; font-size:11.5px; text-align:left;">
+            <thead>
+              <tr
+                style="border-bottom:1px solid var(--line); color:var(--muted); font-size:10.5px; text-transform:uppercase;">
+                <th style="padding:4px 2px;">Date</th>
+                <th style="padding:4px 2px;">Rain (3d)</th>
+                <th style="padding:4px 2px;">Discharge</th>
+                <th style="padding:4px 2px;">Model Risk</th>
+                <th style="padding:4px 2px; text-align:right;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:4px 2px; font-weight:600;">Aug 16, 2018</td>
+                <td style="padding:4px 2px;">153.2 mm</td>
+                <td style="padding:4px 2px;">1,023.0 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--critical);">98.4%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--critical); font-size:9.5px;">CRITICAL ✓</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:4px 2px; font-weight:600;">Aug 15, 2018</td>
+                <td style="padding:4px 2px;">102.6 mm</td>
+                <td style="padding:4px 2px;">223.7 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--critical);">92.4%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--critical); font-size:9.5px;">CRITICAL ✓</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:4px 2px; font-weight:600;">Aug 17, 2018</td>
+                <td style="padding:4px 2px;">160.4 mm</td>
+                <td style="padding:4px 2px;">653.1 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--critical);">96.8%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--critical); font-size:9.5px;">CRITICAL ✓</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:4px 2px; font-weight:600;">Aug 10, 2018</td>
+                <td style="padding:4px 2px;">82.6 mm</td>
+                <td style="padding:4px 2px;">52.3 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--high);">85.2%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:4px 2px; font-weight:600;">Aug 09, 2018</td>
+                <td style="padding:4px 2px;">78.7 mm</td>
+                <td style="padding:4px 2px;">57.8 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--high);">83.6%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:4px 2px; font-weight:600;">Aug 08, 2018</td>
+                <td style="padding:4px 2px;">59.7 mm</td>
+                <td style="padding:4px 2px;">24.7 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--high);">81.0%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:4px 2px; font-weight:600;">Aug 14, 2018</td>
+                <td style="padding:4px 2px;">42.9 mm</td>
+                <td style="padding:4px 2px;">47.7 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--high);">80.4%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:4px 2px; font-weight:600;">Aug 18, 2018</td>
+                <td style="padding:4px 2px;">102.9 mm</td>
+                <td style="padding:4px 2px;">202.6 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--high);">89.1%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
+              </tr>
+              <tr>
+                <td style="padding:4px 2px; font-weight:600;">Aug 19, 2018</td>
+                <td style="padding:4px 2px;">53.6 mm</td>
+                <td style="padding:4px 2px;">375.6 m³/s</td>
+                <td style="padding:4px 2px; font-weight:700; color:var(--high);">86.5%</td>
+                <td style="padding:4px 2px; text-align:right;"><span class="riskPill"
+                    style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
+    <footer>
+      <span>PravahAI — SIH26192 · Model trained on real CWC/IMD Kerala data (2001–2025) · Live zone readings simulated
+        for demo (no live sensor feed connected)</span>
+      <span>Ministry of Home Affairs · Disaster Management theme</span>
+    </footer>
 
   </div>
 
-  <div class="bottomGrid">
-    <div class="panel">
-      <div class="panelTitle">Risk Model <span class="sub">Random Forest · real Kerala data</span></div>
-      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;">
-        <div class="metric" style="flex:1; min-width:90px;"><div class="mLabel">Precision</div><div class="mValue" style="font-size:20px;">0.110</div></div>
-        <div class="metric" style="flex:1; min-width:90px;"><div class="mLabel">Recall</div><div class="mValue" style="font-size:20px;">0.378</div></div>
-        <div class="metric" style="flex:1; min-width:90px;"><div class="mLabel">F1</div><div class="mValue" style="font-size:20px;">0.170</div></div>
-        <div class="metric" style="flex:1; min-width:90px;"><div class="mLabel">ROC-AUC</div><div class="mValue" style="font-size:20px;">0.917</div></div>
-      </div>
-      <div id="factorList"></div>
-      <p style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5;">
-        Trained on real CWC river discharge + rainfall records, 2001–2025, across 5 Kerala gauge stations
-        (KUTTYADI, MUTHANKERA, PERUMANNU, THUMPAMON, VANDIPERIYAR). Flood events are rare (~1% of days), so this
-        is deployed as a <b>screening / early-warning signal, not a precise detector</b> — of every high-risk alert
-        it raises, roughly 1 in 9 corresponds to a real flood day, and it catches roughly 1 in 3 real flood events
-        at its operating threshold (0.8). Validated against the August 2018 Kerala floods at VANDIPERIYAR (9 of 13
-        confirmed flood days correctly flagged) — note this check is not a clean time-based holdout, since most of
-        those days were included in the training split.
-      </p>
-    </div>
-    <div class="panel">
-      <div class="panelTitle">2018 Flood Model Prediction <span class="sub">Vandiperiyar Station · August 2018</span></div>
-      <div style="font-size:12.5px; line-height:1.45; color:var(--ink); background:#F5F7F3; border-left:4px solid var(--critical); padding:8px 12px; margin-bottom:12px;">
-        <b>Model Validation (2018 Great Kerala Flood):</b> Model predicted flood risk with <b>82% mean probability</b> across 13 confirmed flood days, correctly flagging peak flooding at <b>98.4% critical risk</b>.
-      </div>
-      
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
-        <div class="metric" style="flex:1; min-width:80px; padding:6px 8px;">
-          <div class="mLabel" style="font-size:10px;">Flood Days</div>
-          <div class="mValue" style="font-size:18px;">13</div>
-        </div>
-        <div class="metric" style="flex:1; min-width:80px; padding:6px 8px;">
-          <div class="mLabel" style="font-size:10px;">Flagged (≥0.8)</div>
-          <div class="mValue" style="font-size:18px; color:var(--safe);">9 / 13</div>
-        </div>
-        <div class="metric" style="flex:1; min-width:80px; padding:6px 8px;">
-          <div class="mLabel" style="font-size:10px;">Mean Risk</div>
-          <div class="mValue" style="font-size:18px; color:var(--high);">82.0%</div>
-        </div>
-        <div class="metric" style="flex:1; min-width:80px; padding:6px 8px;">
-          <div class="mLabel" style="font-size:10px;">Peak Risk</div>
-          <div class="mValue" style="font-size:18px; color:var(--critical);">98.4%</div>
-        </div>
-      </div>
 
-      <div class="feed" id="flood2018Feed" style="max-height:165px; overflow-y:auto; border:1px solid var(--line); padding:6px 8px; background:#fff;">
-        <table style="width:100%; border-collapse:collapse; font-size:11.5px; text-align:left;">
-          <thead>
-            <tr style="border-bottom:1px solid var(--line); color:var(--muted); font-size:10.5px; text-transform:uppercase;">
-              <th style="padding:4px 2px;">Date</th>
-              <th style="padding:4px 2px;">Rain (3d)</th>
-              <th style="padding:4px 2px;">Discharge</th>
-              <th style="padding:4px 2px;">Model Risk</th>
-              <th style="padding:4px 2px; text-align:right;">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--line);">
-              <td style="padding:4px 2px; font-weight:600;">Aug 16, 2018</td>
-              <td style="padding:4px 2px;">153.2 mm</td>
-              <td style="padding:4px 2px;">1,023.0 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--critical);">98.4%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--critical); font-size:9.5px;">CRITICAL ✓</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--line);">
-              <td style="padding:4px 2px; font-weight:600;">Aug 15, 2018</td>
-              <td style="padding:4px 2px;">102.6 mm</td>
-              <td style="padding:4px 2px;">223.7 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--critical);">92.4%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--critical); font-size:9.5px;">CRITICAL ✓</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--line);">
-              <td style="padding:4px 2px; font-weight:600;">Aug 17, 2018</td>
-              <td style="padding:4px 2px;">160.4 mm</td>
-              <td style="padding:4px 2px;">653.1 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--critical);">96.8%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--critical); font-size:9.5px;">CRITICAL ✓</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--line);">
-              <td style="padding:4px 2px; font-weight:600;">Aug 10, 2018</td>
-              <td style="padding:4px 2px;">82.6 mm</td>
-              <td style="padding:4px 2px;">52.3 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--high);">85.2%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--line);">
-              <td style="padding:4px 2px; font-weight:600;">Aug 09, 2018</td>
-              <td style="padding:4px 2px;">78.7 mm</td>
-              <td style="padding:4px 2px;">57.8 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--high);">83.6%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--line);">
-              <td style="padding:4px 2px; font-weight:600;">Aug 08, 2018</td>
-              <td style="padding:4px 2px;">59.7 mm</td>
-              <td style="padding:4px 2px;">24.7 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--high);">81.0%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--line);">
-              <td style="padding:4px 2px; font-weight:600;">Aug 14, 2018</td>
-              <td style="padding:4px 2px;">42.9 mm</td>
-              <td style="padding:4px 2px;">47.7 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--high);">80.4%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--line);">
-              <td style="padding:4px 2px; font-weight:600;">Aug 18, 2018</td>
-              <td style="padding:4px 2px;">102.9 mm</td>
-              <td style="padding:4px 2px;">202.6 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--high);">89.1%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
-            </tr>
-            <tr>
-              <td style="padding:4px 2px; font-weight:600;">Aug 19, 2018</td>
-              <td style="padding:4px 2px;">53.6 mm</td>
-              <td style="padding:4px 2px;">375.6 m³/s</td>
-              <td style="padding:4px 2px; font-weight:700; color:var(--high);">86.5%</td>
-              <td style="padding:4px 2px; text-align:right;"><span class="riskPill" style="background:var(--high); font-size:9.5px;">HIGH RISK ✓</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <script src="prahari_rf_model.js"></script>
+  <script src="prahari_inference.js"></script>
+  <script>
+    // ---------------- CONFIG ----------------
+    // 3-tier system aligned with the model's own documented operating threshold (0.8),
+    // rather than inventing finer-grained cutoffs the model was never evaluated at.
+    const LEVELS = [
+      { name: 'SAFE', min: 0, color: '#3F7D5C', action: 'No action required. Continue routine daily monitoring.' },
+      { name: 'WATCH', min: 40, color: '#C9922B', action: 'Elevated signal. Alert local disaster response unit and monitor next readings closely.' },
+      { name: 'HIGH RISK', min: 80, color: '#A63C33', action: 'Model has crossed its validated high-risk threshold (0.8). Issue advisory, notify state control room, pre-position response teams.' }
+    ];
+    function levelFor(score) {
+      let l = LEVELS[0];
+      for (const x of LEVELS) { if (score >= x.min) l = x; }
+      return l;
+    }
 
-  <footer>
-    <span>PravahAI — SIH26192 · Model trained on real CWC/IMD Kerala data (2001–2025) · Live zone readings simulated for demo (no live sensor feed connected)</span>
-    <span>Ministry of Home Affairs · Disaster Management theme</span>
-  </footer>
+    // 5 real CWC gauge stations with accurate coordinates and physical DEM terrain metrics from data/TERRAIN_DATA.csv
+    const zones = [
+      {
+        id: 'z1',
+        name: 'Kuttyadi',
+        station: 'KUTTYADI',
+        district: 'Kozhikode',
+        river: 'Kuttyadi',
+        basin: 'Kuttyadi Basin',
+        lat: 11.6508,
+        lon: 75.7583,
+        elevation: 42.0,
+        slope: 12.5,
+        drainage_density: 2.95,
+        rainHistory: [6, 7, 6],
+        discharge: 52,
+        hist: [],
+        marker: null,
+        circle: null
+      },
+      {
+        id: 'z2',
+        name: 'Muthankera',
+        station: 'MUTHANKERA',
+        district: 'Wayanad',
+        river: 'Cauvery / Kabini',
+        basin: 'Cauvery Basin',
+        lat: 11.8081,
+        lon: 76.0842,
+        elevation: 740.0,
+        slope: 14.2,
+        drainage_density: 2.45,
+        rainHistory: [6, 6, 7],
+        discharge: 50,
+        hist: [],
+        marker: null,
+        circle: null
+      },
+      {
+        id: 'z3',
+        name: 'Perumannu',
+        station: 'PERUMANNU',
+        district: 'Kannur',
+        river: 'Valapatnam',
+        basin: 'Valapatnam Basin',
+        lat: 11.9823,
+        lon: 75.5842,
+        elevation: 28.0,
+        slope: 8.4,
+        drainage_density: 2.65,
+        rainHistory: [7, 6, 6],
+        discharge: 55,
+        hist: [],
+        marker: null,
+        circle: null
+      },
+      {
+        id: 'z4',
+        name: 'Thumpamon',
+        station: 'THUMPAMON',
+        district: 'Pathanamthitta',
+        river: 'Pamba',
+        basin: 'Pamba Basin',
+        lat: 9.2278,
+        lon: 76.7000,
+        elevation: 35.0,
+        slope: 6.8,
+        drainage_density: 3.10,
+        rainHistory: [5, 6, 6],
+        discharge: 48,
+        hist: [],
+        marker: null,
+        circle: null
+      },
+      {
+        id: 'z5',
+        name: 'Vandiperiyar',
+        station: 'VANDIPERIYAR',
+        district: 'Idukki',
+        river: 'Periyar',
+        basin: 'Periyar Basin',
+        lat: 9.5733,
+        lon: 77.0906,
+        elevation: 785.0,
+        slope: 18.4,
+        drainage_density: 2.85,
+        rainHistory: [7, 8, 7],
+        discharge: 58,
+        hist: [],
+        marker: null,
+        circle: null
+      },
+    ];
 
-</div>
+    let selectedId = zones[0].id;
+    let chart;
+    let simSpike = null; // {zoneId, ticksLeft}
 
+    // ---------------- LEAFLET MAP ENGINE ----------------
+    let map;
+    let currentBaseLayer;
+    const baseLayers = {};
 
-<script src="prahari_rf_model.js"></script>
-<script src="prahari_inference.js"></script>
-<script>
-// ---------------- CONFIG ----------------
-// 3-tier system aligned with the model's own documented operating threshold (0.8),
-// rather than inventing finer-grained cutoffs the model was never evaluated at.
-const LEVELS = [
-  {name:'SAFE', min:0,  color:'#3F7D5C', action:'No action required. Continue routine daily monitoring.'},
-  {name:'WATCH', min:40, color:'#C9922B', action:'Elevated signal. Alert local disaster response unit and monitor next readings closely.'},
-  {name:'HIGH RISK', min:80, color:'#A63C33', action:'Model has crossed its validated high-risk threshold (0.8). Issue advisory, notify state control room, pre-position response teams.'}
-];
-function levelFor(score){
-  let l = LEVELS[0];
-  for(const x of LEVELS){ if(score>=x.min) l=x; }
-  return l;
-}
+    function initLeafletMap() {
+      map = L.map('leafletMap', {
+        center: [10.6, 76.4],
+        zoom: 7,
+        zoomControl: true,
+        attributionControl: false
+      });
 
-// 5 real CWC gauge stations with accurate coordinates and physical DEM terrain metrics from data/TERRAIN_DATA.csv
-const zones = [
-  {
-    id: 'z1',
-    name: 'Kuttyadi',
-    station: 'KUTTYADI',
-    district: 'Kozhikode',
-    river: 'Kuttyadi',
-    basin: 'Kuttyadi Basin',
-    lat: 11.6508,
-    lon: 75.7583,
-    elevation: 42.0,
-    slope: 12.5,
-    drainage_density: 2.95,
-    rainHistory: [6, 7, 6],
-    discharge: 52,
-    hist: [],
-    marker: null,
-    circle: null
-  },
-  {
-    id: 'z2',
-    name: 'Muthankera',
-    station: 'MUTHANKERA',
-    district: 'Wayanad',
-    river: 'Cauvery / Kabini',
-    basin: 'Cauvery Basin',
-    lat: 11.8081,
-    lon: 76.0842,
-    elevation: 740.0,
-    slope: 14.2,
-    drainage_density: 2.45,
-    rainHistory: [6, 6, 7],
-    discharge: 50,
-    hist: [],
-    marker: null,
-    circle: null
-  },
-  {
-    id: 'z3',
-    name: 'Perumannu',
-    station: 'PERUMANNU',
-    district: 'Kannur',
-    river: 'Valapatnam',
-    basin: 'Valapatnam Basin',
-    lat: 11.9823,
-    lon: 75.5842,
-    elevation: 28.0,
-    slope: 8.4,
-    drainage_density: 2.65,
-    rainHistory: [7, 6, 6],
-    discharge: 55,
-    hist: [],
-    marker: null,
-    circle: null
-  },
-  {
-    id: 'z4',
-    name: 'Thumpamon',
-    station: 'THUMPAMON',
-    district: 'Pathanamthitta',
-    river: 'Pamba',
-    basin: 'Pamba Basin',
-    lat: 9.2278,
-    lon: 76.7000,
-    elevation: 35.0,
-    slope: 6.8,
-    drainage_density: 3.10,
-    rainHistory: [5, 6, 6],
-    discharge: 48,
-    hist: [],
-    marker: null,
-    circle: null
-  },
-  {
-    id: 'z5',
-    name: 'Vandiperiyar',
-    station: 'VANDIPERIYAR',
-    district: 'Idukki',
-    river: 'Periyar',
-    basin: 'Periyar Basin',
-    lat: 9.5733,
-    lon: 77.0906,
-    elevation: 785.0,
-    slope: 18.4,
-    drainage_density: 2.85,
-    rainHistory: [7, 8, 7],
-    discharge: 58,
-    hist: [],
-    marker: null,
-    circle: null
-  },
-];
+      // Base Tile Layers
+      baseLayers.topo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        attribution: 'Esri, USGS, CWC'
+      });
+      baseLayers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        attribution: 'Esri, Maxar'
+      });
+      baseLayers.clean = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+        attribution: 'CartoDB, OSM'
+      });
 
-let selectedId = zones[0].id;
-let chart;
-let simSpike = null; // {zoneId, ticksLeft}
+      // Default to Topographic Layer
+      currentBaseLayer = baseLayers.topo;
+      currentBaseLayer.addTo(map);
 
-// ---------------- LEAFLET MAP ENGINE ----------------
-let map;
-let currentBaseLayer;
-const baseLayers = {};
+      // Western Ghats Highland Ridge Axis
+      const ridgeCoords = [
+        [11.9823, 75.5842], // Perumannu
+        [11.6508, 75.7583], // Kuttyadi
+        [11.8081, 76.0842], // Muthankera
+        [9.5733, 77.0906],  // Vandiperiyar
+        [9.2278, 76.7000]   // Thumpamon
+      ];
+      L.polyline(ridgeCoords, {
+        color: '#2C6E8E',
+        weight: 2,
+        dashArray: '5, 8',
+        opacity: 0.5
+      }).addTo(map);
 
-function initLeafletMap() {
-  map = L.map('leafletMap', {
-    center: [10.6, 76.4],
-    zoom: 7,
-    zoomControl: true,
-    attributionControl: false
-  });
+      // Initialize Catchment Buffers and Custom Pulse Markers
+      zones.forEach(z => {
+        // 12km Catchment buffer
+        const circle = L.circle([z.lat, z.lon], {
+          radius: 12000,
+          color: '#3F7D5C',
+          fillColor: '#3F7D5C',
+          fillOpacity: 0.12,
+          weight: 1.5
+        }).addTo(map);
+        z.circle = circle;
 
-  // Base Tile Layers
-  baseLayers.topo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 18,
-    attribution: 'Esri, USGS, CWC'
-  });
-  baseLayers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 18,
-    attribution: 'Esri, Maxar'
-  });
-  baseLayers.clean = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19,
-    subdomains: 'abcd',
-    attribution: 'CartoDB, OSM'
-  });
+        // Custom pulse marker
+        const icon = L.divIcon({
+          className: 'custom-station-marker',
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+          popupAnchor: [0, -18],
+          html: createMarkerHtml(z, 0, LEVELS[0])
+        });
 
-  // Default to Topographic Layer
-  currentBaseLayer = baseLayers.topo;
-  currentBaseLayer.addTo(map);
+        const marker = L.marker([z.lat, z.lon], { icon }).addTo(map);
+        marker.bindPopup(() => getPopupHtml(z));
+        marker.on('click', () => {
+          selectZone(z.id, false);
+        });
+        z.marker = marker;
+      });
 
-  // Western Ghats Highland Ridge Axis
-  const ridgeCoords = [
-    [11.9823, 75.5842], // Perumannu
-    [11.6508, 75.7583], // Kuttyadi
-    [11.8081, 76.0842], // Muthankera
-    [9.5733, 77.0906],  // Vandiperiyar
-    [9.2278, 76.7000]   // Thumpamon
-  ];
-  L.polyline(ridgeCoords, {
-    color: '#2C6E8E',
-    weight: 2,
-    dashArray: '5, 8',
-    opacity: 0.5
-  }).addTo(map);
+      fitAllStations();
+      setTimeout(() => map.invalidateSize(), 250);
+    }
 
-  // Initialize Catchment Buffers and Custom Pulse Markers
-  zones.forEach(z => {
-    // 12km Catchment buffer
-    const circle = L.circle([z.lat, z.lon], {
-      radius: 12000,
-      color: '#3F7D5C',
-      fillColor: '#3F7D5C',
-      fillOpacity: 0.12,
-      weight: 1.5
-    }).addTo(map);
-    z.circle = circle;
+    function setBaseLayer(name) {
+      if (baseLayers[name] && currentBaseLayer !== baseLayers[name]) {
+        map.removeLayer(currentBaseLayer);
+        currentBaseLayer = baseLayers[name];
+        currentBaseLayer.addTo(map);
 
-    // Custom pulse marker
-    const icon = L.divIcon({
-      className: 'custom-station-marker',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -18],
-      html: createMarkerHtml(z, 0, LEVELS[0])
-    });
+        document.querySelectorAll('.layerBtn').forEach(b => {
+          b.classList.toggle('active', b.id === (name === 'topo' ? 'btnTopo' : name === 'satellite' ? 'btnSat' : 'btnClean'));
+        });
+      }
+    }
 
-    const marker = L.marker([z.lat, z.lon], { icon }).addTo(map);
-    marker.bindPopup(() => getPopupHtml(z));
-    marker.on('click', () => {
-      selectZone(z.id, false);
-    });
-    z.marker = marker;
-  });
+    function fitAllStations() {
+      if (!map) return;
+      const bounds = L.latLngBounds(zones.map(z => [z.lat, z.lon]));
+      map.fitBounds(bounds, { padding: [35, 35] });
+    }
 
-  fitAllStations();
-  setTimeout(() => map.invalidateSize(), 250);
-}
-
-function setBaseLayer(name) {
-  if (baseLayers[name] && currentBaseLayer !== baseLayers[name]) {
-    map.removeLayer(currentBaseLayer);
-    currentBaseLayer = baseLayers[name];
-    currentBaseLayer.addTo(map);
-
-    document.querySelectorAll('.layerBtn').forEach(b => {
-      b.classList.toggle('active', b.id === (name === 'topo' ? 'btnTopo' : name === 'satellite' ? 'btnSat' : 'btnClean'));
-    });
-  }
-}
-
-function fitAllStations() {
-  if (!map) return;
-  const bounds = L.latLngBounds(zones.map(z => [z.lat, z.lon]));
-  map.fitBounds(bounds, { padding: [35, 35] });
-}
-
-function createMarkerHtml(z, score, lvl) {
-  const isCritical = lvl.name === 'HIGH RISK';
-  return `
+    function createMarkerHtml(z, score, lvl) {
+      const isCritical = lvl.name === 'HIGH RISK';
+      return `
     <div class="stationMarkerWrap">
       <div class="stationPulse ${isCritical ? 'critical' : ''}" style="background:${lvl.color}"></div>
       <div class="stationBeacon" style="background:${lvl.color}"></div>
       <div class="stationPillTag">${z.name} · ${Math.round(score)}%</div>
     </div>
   `;
-}
+    }
 
-function getPopupHtml(z) {
-  const last = z.hist.length ? z.hist[z.hist.length - 1] : { rain: 0, cum3: 0, discharge: z.discharge, roc: 0, score: 0, sensorOutage: 0 };
-  const lvl = levelFor(last.score);
-  return `
+    function getPopupHtml(z) {
+      const last = z.hist.length ? z.hist[z.hist.length - 1] : { rain: 0, cum3: 0, discharge: z.discharge, roc: 0, score: 0, sensorOutage: 0 };
+      const lvl = levelFor(last.score);
+      return `
     <div class="popupHeader">
       <span class="popupTitle">${z.name}</span>
       <span class="popupDistrict">${z.district}</span>
@@ -476,297 +538,349 @@ function getPopupHtml(z) {
     ${last.sensorOutage ? '<div style="font-size:10.5px; font-weight:700; color:var(--critical); margin-bottom:6px;">⚠ Sensor Outage Active</div>' : ''}
     <button type="button" class="popupFocusBtn" onclick="selectZone('${z.id}', true)">Inspect in Detail Panel &rarr;</button>
   `;
-}
+    }
 
-// ---------------- SELECTION SYNC ----------------
-function selectZone(id, panTo = false) {
-  selectedId = id;
-  renderDetail();
-  highlightList();
-  if (panTo && map) {
-    const z = zones.find(zz => zz.id === id);
-    if (z) {
-      map.flyTo([z.lat, z.lon], 11, { duration: 1.0 });
-      if (z.marker) {
-        setTimeout(() => z.marker.openPopup(), 400);
+    // ---------------- SELECTION SYNC ----------------
+    function selectZone(id, panTo = false) {
+      selectedId = id;
+      renderDetail();
+      highlightList();
+      if (panTo && map) {
+        const z = zones.find(zz => zz.id === id);
+        if (z) {
+          map.flyTo([z.lat, z.lon], 11, { duration: 1.0 });
+          if (z.marker) {
+            setTimeout(() => z.marker.openPopup(), 400);
+          }
+        }
       }
     }
-  }
-}
 
-// ---------------- SIM ENGINE ----------------
-function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+    // ---------------- SIM ENGINE ----------------
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-// Approximate real rainfall's right-skewed distribution (mostly low, occasional
-// large spike) — matches the real training data's mean 6.4mm / std 11.0mm, roughly.
-function simulateDailyRainfall(spikeBoost){
-  let rain = -Math.log(1 - Math.random()) * 6.4; // exponential-ish, mean ~6.4
-  if(Math.random() < 0.06) rain *= (4 + Math.random()*6); // occasional monsoon burst
-  return clamp(rain + (spikeBoost||0), 0, 400);
-}
-
-function tick(){
-  zones.forEach(z=>{
-    let spikeBoost = 0;
-    if(simSpike && simSpike.zoneId===z.id && simSpike.ticksLeft>0){
-      spikeBoost = 60 + Math.random()*40;
-      simSpike.ticksLeft--;
+    // Approximate real rainfall's right-skewed distribution (mostly low, occasional
+    // large spike) — matches the real training data's mean 6.4mm / std 11.0mm, roughly.
+    function simulateDailyRainfall(spikeBoost) {
+      let rain = -Math.log(1 - Math.random()) * 6.4; // exponential-ish, mean ~6.4
+      if (Math.random() < 0.06) rain *= (4 + Math.random() * 6); // occasional monsoon burst
+      return clamp(rain + (spikeBoost || 0), 0, 400);
     }
-    const todayRain = simulateDailyRainfall(spikeBoost);
-    z.rainHistory.push(todayRain);
-    if(z.rainHistory.length>3) z.rainHistory.shift();
-    const cum3 = z.rainHistory.reduce((a,b)=>a+b, 0);
 
-    // Sensor outage: small random chance per tick, models real telemetry gaps
-    const sensorOutage = Math.random() < 0.04 ? 1 : 0;
+    function tick() {
+      zones.forEach(z => {
+        let spikeBoost = 0;
+        if (simSpike && simSpike.zoneId === z.id && simSpike.ticksLeft > 0) {
+          spikeBoost = 60 + Math.random() * 40;
+          simSpike.ticksLeft--;
+        }
+        const todayRain = simulateDailyRainfall(spikeBoost);
+        z.rainHistory.push(todayRain);
+        if (z.rainHistory.length > 3) z.rainHistory.shift();
+        const cum3 = z.rainHistory.reduce((a, b) => a + b, 0);
 
-    let discharge = z.discharge;
-    let roc = 0;
-    if(!sensorOutage){
-      const prevDischarge = z.discharge;
-      const newDischarge = clamp(prevDischarge*0.55 + cum3*2.1 + (Math.random()-0.4)*8, 5, 2500);
-      roc = newDischarge - prevDischarge;
-      discharge = newDischarge;
-      z.discharge = newDischarge;
-    }
-    // if sensor is out, discharge/roc are stale (unchanged) — that's the point
+        // Sensor outage: small random chance per tick, models real telemetry gaps
+        const sensorOutage = Math.random() < 0.04 ? 1 : 0;
 
-    let probability = 0;
-    try{
-      const result = predictFloodRisk({
-        rainfall_mm: todayRain,
-        rainfall_3d_cum_mm: cum3,
-        river_discharge: discharge,
-        river_discharge_roc: roc,
-        slope: z.slope,
-        drainage_density: z.drainage_density,
-        discharge_sensor_outage: sensorOutage
+        let discharge = z.discharge;
+        let roc = 0;
+        if (!sensorOutage) {
+          const prevDischarge = z.discharge;
+          const newDischarge = clamp(prevDischarge * 0.55 + cum3 * 2.1 + (Math.random() - 0.4) * 8, 5, 2500);
+          roc = newDischarge - prevDischarge;
+          discharge = newDischarge;
+          z.discharge = newDischarge;
+        }
+        // if sensor is out, discharge/roc are stale (unchanged) — that's the point
+
+        let probability = 0;
+        try {
+          const result = predictFloodRisk({
+            rainfall_mm: todayRain,
+            rainfall_3d_cum_mm: cum3,
+            river_discharge: discharge,
+            river_discharge_roc: roc,
+            slope: z.slope,
+            drainage_density: z.drainage_density,
+            discharge_sensor_outage: sensorOutage
+          });
+          probability = result.probability;
+        } catch (e) {
+          console.error('predictFloodRisk failed — check prahari_rf_model.js / prahari_inference.js are loaded', e);
+        }
+
+        const score = clamp(probability * 100, 0, 100);
+        const prevLevel = z.hist.length ? levelFor(z.hist[z.hist.length - 1].score).name : 'SAFE';
+        z.hist.push({ t: Date.now(), rain: todayRain, cum3, discharge, roc, sensorOutage, score });
+        if (z.hist.length > 30) z.hist.shift();
+
+        const newLevel = levelFor(score).name;
+        if (newLevel !== prevLevel && z.hist.length > 1) {
+          pushFeed(z, newLevel, score);
+        }
       });
-      probability = result.probability;
-    } catch(e){
-      console.error('predictFloodRisk failed — check prahari_rf_model.js / prahari_inference.js are loaded', e);
+      renderMap();
+      renderList();
+      renderDetail(false);
+      updateSystemStatus();
     }
 
-    const score = clamp(probability*100, 0, 100);
-    const prevLevel = z.hist.length ? levelFor(z.hist[z.hist.length-1].score).name : 'SAFE';
-    z.hist.push({t:Date.now(), rain:todayRain, cum3, discharge, roc, sensorOutage, score});
-    if(z.hist.length>30) z.hist.shift();
-
-    const newLevel = levelFor(score).name;
-    if(newLevel!==prevLevel && z.hist.length>1){
-      pushFeed(z, newLevel, score);
-    }
-  });
-  renderMap();
-  renderList();
-  renderDetail(false);
-  updateSystemStatus();
-}
-
-function pushFeed(zone, level, score){
-  updateSystemStatus();
-  const feed = document.getElementById('feed');
-  if(!feed) return;
-  const lvl = LEVELS.find(l=>l.name===level);
-  const item = document.createElement('div');
-  item.className='feedItem';
-  const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  item.innerHTML = `<span class="feedTime">${time}</span>
+    function pushFeed(zone, level, score) {
+      updateSystemStatus();
+      const feed = document.getElementById('feed');
+      if (!feed) return;
+      const lvl = LEVELS.find(l => l.name === level);
+      const item = document.createElement('div');
+      item.className = 'feedItem';
+      const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      item.innerHTML = `<span class="feedTime">${time}</span>
     <span class="feedDot" style="background:${lvl.color}"></span>
     <span><b>${zone.name}</b> moved to <b style="color:${lvl.color}">${level}</b> (score ${Math.round(score)})</span>`;
-  feed.prepend(item);
-  while(feed.children.length>25) feed.removeChild(feed.lastChild);
-}
-
-function updateSystemStatus(){
-  const worst = zones.reduce((acc,z)=>{
-    const s = z.hist.length ? z.hist[z.hist.length-1].score : 0;
-    return Math.max(acc, s);
-  }, 0);
-  const lvl = levelFor(worst);
-  const dot = document.getElementById('sysDot');
-  const label = document.getElementById('sysLabel');
-  if(dot) dot.style.background = lvl.color;
-  if(label) label.textContent = worst < 40 ? 'All stations nominal' : `${lvl.name} detected in basin`;
-}
-
-// ---------------- RENDER ----------------
-function renderMap(){
-  if (!map) return;
-  zones.forEach(z => {
-    const s = z.hist.length ? z.hist[z.hist.length - 1].score : 0;
-    const lvl = levelFor(s);
-    const isCritical = lvl.name === 'HIGH RISK';
-
-    if (z.marker) {
-      z.marker.setIcon(L.divIcon({
-        className: 'custom-station-marker',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -18],
-        html: createMarkerHtml(z, s, lvl)
-      }));
+      feed.prepend(item);
+      while (feed.children.length > 25) feed.removeChild(feed.lastChild);
     }
 
-    if (z.circle) {
-      z.circle.setStyle({
-        color: lvl.color,
-        fillColor: lvl.color,
-        fillOpacity: isCritical ? 0.26 : 0.12,
-        weight: isCritical ? 2.5 : 1.5
+    function updateSystemStatus() {
+      const worst = zones.reduce((acc, z) => {
+        const s = z.hist.length ? z.hist[z.hist.length - 1].score : 0;
+        return Math.max(acc, s);
+      }, 0);
+      const lvl = levelFor(worst);
+      const dot = document.getElementById('sysDot');
+      const label = document.getElementById('sysLabel');
+      if (dot) dot.style.background = lvl.color;
+      if (label) label.textContent = worst < 40 ? 'All stations nominal' : `${lvl.name} detected in basin`;
+    }
+
+    // ---------------- RENDER ----------------
+    function renderMap() {
+      if (!map) return;
+      zones.forEach(z => {
+        const s = z.hist.length ? z.hist[z.hist.length - 1].score : 0;
+        const lvl = levelFor(s);
+        const isCritical = lvl.name === 'HIGH RISK';
+
+        if (z.marker) {
+          z.marker.setIcon(L.divIcon({
+            className: 'custom-station-marker',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -18],
+            html: createMarkerHtml(z, s, lvl)
+          }));
+        }
+
+        if (z.circle) {
+          z.circle.setStyle({
+            color: lvl.color,
+            fillColor: lvl.color,
+            fillOpacity: isCritical ? 0.26 : 0.12,
+            weight: isCritical ? 2.5 : 1.5
+          });
+        }
       });
     }
-  });
-}
 
-function renderList(){
-  const list = document.getElementById('zoneList');
-  list.innerHTML='';
-  zones.forEach(z=>{
-    const s = z.hist[z.hist.length-1]?.score ?? 0;
-    const lvl = levelFor(s);
-    const row = document.createElement('div');
-    row.className = 'zoneRow' + (z.id===selectedId ? ' active':'');
-    row.innerHTML = `
+    function renderList() {
+      const list = document.getElementById('zoneList');
+      list.innerHTML = '';
+      zones.forEach(z => {
+        const s = z.hist[z.hist.length - 1]?.score ?? 0;
+        const lvl = levelFor(s);
+        const row = document.createElement('div');
+        row.className = 'zoneRow' + (z.id === selectedId ? ' active' : '');
+        row.innerHTML = `
       <div class="zoneRowLeft"><span class="dot" style="background:${lvl.color}"></span>${z.name} (${z.district})</div>
       <span class="riskPill" style="background:${lvl.color}">${lvl.name} · ${Math.round(s)}</span>
     `;
-    row.addEventListener('click', ()=>{ selectZone(z.id, true); });
-    list.appendChild(row);
-  });
-}
+        row.addEventListener('click', () => { selectZone(z.id, true); });
+        list.appendChild(row);
+      });
+    }
 
-function highlightList(){
-  [...document.getElementById('zoneList').children].forEach((row,i)=>{
-    row.classList.toggle('active', zones[i].id===selectedId);
-  });
-}
+    function highlightList() {
+      [...document.getElementById('zoneList').children].forEach((row, i) => {
+        row.classList.toggle('active', zones[i].id === selectedId);
+      });
+    }
 
-function renderDetail(updateChart=true){
-  const z = zones.find(zz=>zz.id===selectedId);
-  if(!z || !z.hist.length) return;
-  const last = z.hist[z.hist.length-1];
-  const lvl = levelFor(last.score);
+    function renderDetail(updateChart = true) {
+      const z = zones.find(zz => zz.id === selectedId);
+      if (!z || !z.hist.length) return;
+      const last = z.hist[z.hist.length - 1];
+      const lvl = levelFor(last.score);
 
-  document.getElementById('dZoneName').textContent = z.name;
-  document.getElementById('dZoneMeta').textContent = `CWC station · ${z.river} · ${z.elevation}m ASL · slope ${z.slope.toFixed(1)}° · drainage density ${z.drainage_density.toFixed(2)}`;
-  document.getElementById('dScore').textContent = Math.round(last.score);
-  document.getElementById('dLevel').textContent = lvl.name;
-  document.getElementById('scoreBadge').style.background = lvl.color;
+      document.getElementById('dZoneName').textContent = z.name;
+      document.getElementById('dZoneMeta').textContent = `CWC station · ${z.river} · ${z.elevation}m ASL · slope ${z.slope.toFixed(1)}° · drainage density ${z.drainage_density.toFixed(2)}`;
+      document.getElementById('dScore').textContent = Math.round(last.score);
+      document.getElementById('dLevel').textContent = lvl.name;
+      document.getElementById('scoreBadge').style.background = lvl.color;
 
-  document.getElementById('mRain').innerHTML = `${last.rain.toFixed(1)}<span class="mUnit"> mm</span>`;
-  document.getElementById('mCum').innerHTML = `${last.cum3.toFixed(1)}<span class="mUnit"> mm</span>`;
-  document.getElementById('mDischarge').innerHTML = `${last.discharge.toFixed(1)}<span class="mUnit"> m³/s</span>`;
-  document.getElementById('mRoc').innerHTML = `${last.roc>=0?'+':''}${last.roc.toFixed(1)}<span class="mUnit"> m³/s</span>`;
+      document.getElementById('mRain').innerHTML = `${last.rain.toFixed(1)}<span class="mUnit"> mm</span>`;
+      document.getElementById('mCum').innerHTML = `${last.cum3.toFixed(1)}<span class="mUnit"> mm</span>`;
+      document.getElementById('mDischarge').innerHTML = `${last.discharge.toFixed(1)}<span class="mUnit"> m³/s</span>`;
+      document.getElementById('mRoc').innerHTML = `${last.roc >= 0 ? '+' : ''}${last.roc.toFixed(1)}<span class="mUnit"> m³/s</span>`;
 
-  document.getElementById('sensorOutageBanner').style.display = last.sensorOutage ? 'block' : 'none';
+      document.getElementById('sensorOutageBanner').style.display = last.sensorOutage ? 'block' : 'none';
 
-  document.getElementById('actionText').textContent = lvl.action;
-  document.getElementById('actionBox').style.borderLeftColor = lvl.color;
+      document.getElementById('actionText').textContent = lvl.action;
+      document.getElementById('actionBox').style.borderLeftColor = lvl.color;
 
-  renderInputs(z, last);
-  if(updateChart!==false) updateTrendChart(z);
-}
+      updateAmbientMode(lvl, last.score);
+      renderInputs(z, last);
+      if (updateChart !== false) updateTrendChart(z);
+    }
 
-// Shows the exact 7 raw values being fed into the real model right now —
-// no fabricated importance weights, just the true live input vector.
-function renderInputs(z, last){
-  const rows = [
-    {label:'Rainfall (mm)', value: last.rain.toFixed(1)},
-    {label:'3-day cum. rainfall (mm)', value: last.cum3.toFixed(1)},
-    {label:'River discharge (m³/s)', value: last.discharge.toFixed(1)},
-    {label:'Discharge rate of change', value: (last.roc>=0?'+':'')+last.roc.toFixed(1)},
-    {label:'Slope (°)', value: z.slope.toFixed(1)},
-    {label:'Drainage density (km/km²)', value: z.drainage_density.toFixed(2)},
-    {label:'Sensor outage flag', value: last.sensorOutage ? 'YES (1)' : 'NO (0)'},
-  ];
-  const el = document.getElementById('factorList');
-  el.innerHTML = `<div style="font-size:12px; color:var(--muted); margin-bottom:6px;">Live model input vector — fed directly into <code>predictFloodRisk()</code></div>` +
-    rows.map(r=>`
+    // ---------------- AMBIENT MODE CONTROLLER ----------------
+    // Dynamically adjusts atmospheric background aura, card glows, and badge accents
+    // based on whether the active station is Safe (green), Watch (amber), or High Risk (crimson red).
+    function updateAmbientMode(lvl, score) {
+      const root = document.documentElement;
+      const isHighRisk = lvl.name === 'HIGH RISK';
+      const isWatch = lvl.name === 'WATCH';
+
+      let bgTint, primaryGlow, secondaryGlow, cardGlow, cardBorder, accentColor, labelText;
+
+      if (isHighRisk) {
+        // Saturated Crimson / Emergency Red Ambient Glow
+        bgTint = 'rgba(215, 45, 35, 0.12)';
+        primaryGlow = 'rgba(215, 45, 35, 0.35)';
+        secondaryGlow = 'rgba(235, 75, 55, 0.22)';
+        cardGlow = 'rgba(215, 45, 35, 0.28)';
+        cardBorder = 'rgba(215, 45, 35, 0.55)';
+        accentColor = '#c0392b';
+        labelText = 'Ambient: High Risk';
+      } else if (isWatch) {
+        // Rich Golden Amber / Watch Glow
+        bgTint = 'rgba(230, 145, 20, 0.10)';
+        primaryGlow = 'rgba(230, 145, 20, 0.28)';
+        secondaryGlow = 'rgba(243, 156, 18, 0.18)';
+        cardGlow = 'rgba(230, 145, 20, 0.24)';
+        cardBorder = 'rgba(230, 145, 20, 0.48)';
+        accentColor = '#e67e22';
+        labelText = 'Ambient: Watch';
+      } else {
+        // Vibrant Emerald / Safe Green Glow
+        bgTint = 'rgba(46, 165, 95, 0.08)';
+        primaryGlow = 'rgba(46, 165, 95, 0.26)';
+        secondaryGlow = 'rgba(39, 174, 96, 0.18)';
+        cardGlow = 'rgba(46, 165, 95, 0.18)';
+        cardBorder = 'rgba(46, 165, 95, 0.42)';
+        accentColor = '#27ae60';
+        labelText = 'Ambient: Safe';
+      }
+
+      root.style.setProperty('--ambient-bg-tint', bgTint);
+      root.style.setProperty('--ambient-glow-color', primaryGlow);
+      root.style.setProperty('--ambient-glow-secondary', secondaryGlow);
+      root.style.setProperty('--ambient-card-glow', cardGlow);
+      root.style.setProperty('--ambient-card-border', cardBorder);
+      root.style.setProperty('--ambient-accent', accentColor);
+
+      const ambLabel = document.getElementById('ambientStatusLabel');
+      if (ambLabel) ambLabel.textContent = labelText;
+    }
+
+    // Shows the exact 7 raw values being fed into the real model right now —
+    // no fabricated importance weights, just the true live input vector.
+    function renderInputs(z, last) {
+      const rows = [
+        { label: 'Rainfall (mm)', value: last.rain.toFixed(1) },
+        { label: '3-day cum. rainfall (mm)', value: last.cum3.toFixed(1) },
+        { label: 'River discharge (m³/s)', value: last.discharge.toFixed(1) },
+        { label: 'Discharge rate of change', value: (last.roc >= 0 ? '+' : '') + last.roc.toFixed(1) },
+        { label: 'Slope (°)', value: z.slope.toFixed(1) },
+        { label: 'Drainage density (km/km²)', value: z.drainage_density.toFixed(2) },
+        { label: 'Sensor outage flag', value: last.sensorOutage ? 'YES (1)' : 'NO (0)' },
+      ];
+      const el = document.getElementById('factorList');
+      el.innerHTML = `<div style="font-size:12px; color:var(--muted); margin-bottom:6px;">Live model input vector — fed directly into <code>predictFloodRisk()</code></div>` +
+        rows.map(r => `
     <div class="factorRow" style="grid-template-columns: 1fr auto;">
       <span>${r.label}</span>
       <span style="text-align:right; font-weight:600;">${r.value}</span>
     </div>
   `).join('');
-}
+    }
 
-function updateTrendChart(z){
-  const labels = z.hist.map((h,i)=> i%3===0 ? new Date(h.t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '');
-  const rainData = z.hist.map(h=>h.rain);
-  const dischargeData = z.hist.map(h=>h.discharge);
+    function updateTrendChart(z) {
+      const labels = z.hist.map((h, i) => i % 3 === 0 ? new Date(h.t).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '');
+      const rainData = z.hist.map(h => h.rain);
+      const dischargeData = z.hist.map(h => h.discharge);
 
-  if(!chart){
-    const ctx = document.getElementById('trendChart').getContext('2d');
-    chart = new Chart(ctx, {
-      type:'line',
-      data:{
-        labels,
-        datasets:[
-          {label:'Rainfall (mm)', data:rainData, borderColor:'#2C6E8E', backgroundColor:'rgba(44,110,142,0.08)', yAxisID:'y', tension:0.3, pointRadius:0, borderWidth:2, fill:true},
-          {label:'River discharge (m³/s)', data:dischargeData, borderColor:'#A63C33', yAxisID:'y1', tension:0.3, pointRadius:0, borderWidth:2}
-        ]
-      },
-      options:{
-        responsive:true,
-        animation:false,
-        interaction:{mode:'index', intersect:false},
-        plugins:{ legend:{ position:'bottom', labels:{boxWidth:10, font:{size:11}} } },
-        scales:{
-          y:{ position:'left', title:{display:true, text:'mm', font:{size:10}}, grid:{color:'#EEEFE8'} },
-          y1:{ position:'right', title:{display:true, text:'m³/s', font:{size:10}}, grid:{display:false} },
-          x:{ grid:{display:false}, ticks:{font:{size:9}} }
-        }
+      if (!chart) {
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Rainfall (mm)', data: rainData, borderColor: '#2C6E8E', backgroundColor: 'rgba(44,110,142,0.08)', yAxisID: 'y', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: true },
+              { label: 'River discharge (m³/s)', data: dischargeData, borderColor: '#A63C33', yAxisID: 'y1', tension: 0.3, pointRadius: 0, borderWidth: 2 }
+            ]
+          },
+          options: {
+            responsive: true,
+            animation: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
+            scales: {
+              y: { position: 'left', title: { display: true, text: 'mm', font: { size: 10 } }, grid: { color: '#EEEFE8' } },
+              y1: { position: 'right', title: { display: true, text: 'm³/s', font: { size: 10 } }, grid: { display: false } },
+              x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+            }
+          }
+        });
+      } else {
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = rainData;
+        chart.data.datasets[1].data = dischargeData;
+        chart.update('none');
       }
+    }
+
+    // ---------------- CONTROLS ----------------
+    document.getElementById('simBtn').addEventListener('click', () => {
+      simSpike = { zoneId: selectedId, ticksLeft: 6 };
     });
-  } else {
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = rainData;
-    chart.data.datasets[1].data = dischargeData;
-    chart.update('none');
-  }
-}
+    document.getElementById('alertBtn').addEventListener('click', (e) => {
+      const z = zones.find(zz => zz.id === selectedId);
+      const btn = e.target;
+      const original = btn.textContent;
+      btn.textContent = 'Alert dispatched ✓';
+      pushFeed(z, levelFor(z.hist[z.hist.length - 1].score).name, z.hist[z.hist.length - 1].score);
+      setTimeout(() => { btn.textContent = original; }, 1800);
+    });
 
-// ---------------- CONTROLS ----------------
-document.getElementById('simBtn').addEventListener('click', ()=>{
-  simSpike = {zoneId: selectedId, ticksLeft: 6};
-});
-document.getElementById('alertBtn').addEventListener('click', (e)=>{
-  const z = zones.find(zz=>zz.id===selectedId);
-  const btn = e.target;
-  const original = btn.textContent;
-  btn.textContent = 'Alert dispatched ✓';
-  pushFeed(z, levelFor(z.hist[z.hist.length-1].score).name, z.hist[z.hist.length-1].score);
-  setTimeout(()=>{ btn.textContent = original; }, 1800);
-});
+    // ---------------- 30-SECOND COUNTDOWN & REFRESH ----------------
+    let countdownSec = 30;
 
-// ---------------- 30-SECOND COUNTDOWN & REFRESH ----------------
-let countdownSec = 30;
+    function updateCountdownDisplay() {
+      const clockEl = document.getElementById('clock');
+      if (clockEl) {
+        const s = countdownSec.toString().padStart(2, '0');
+        clockEl.textContent = `00:${s}`;
+      }
+    }
 
-function updateCountdownDisplay(){
-  const clockEl = document.getElementById('clock');
-  if(clockEl){
-    const s = countdownSec.toString().padStart(2, '0');
-    clockEl.textContent = `00:${s}`;
-  }
-}
+    function countdownTick() {
+      countdownSec--;
+      if (countdownSec <= 0) {
+        tick(); // regenerate random sensor data every 30s
+        countdownSec = 30;
+      }
+      updateCountdownDisplay();
+    }
 
-function countdownTick(){
-  countdownSec--;
-  if(countdownSec <= 0){
-    tick(); // regenerate random sensor data every 30s
-    countdownSec = 30;
-  }
-  updateCountdownDisplay();
-}
-
-// ---------------- BOOT ----------------
-initLeafletMap();
-for(let i=0;i<8;i++) tick(); // seed history
-updateCountdownDisplay();
-setInterval(countdownTick, 1000); // 1-second countdown cycle
-window.addEventListener('resize', () => {
-  if (map) map.invalidateSize();
-});
-</script>
+    // ---------------- BOOT ----------------
+    initLeafletMap();
+    for (let i = 0; i < 8; i++) tick(); // seed history
+    updateCountdownDisplay();
+    setInterval(countdownTick, 1000); // 1-second countdown cycle
+    window.addEventListener('resize', () => {
+      if (map) map.invalidateSize();
+    });
+  </script>
 </body>
+
 </html>
