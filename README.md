@@ -99,7 +99,7 @@ flowchart TD
     end
 
     subgraph OperationalDashboard ["4. PravahAI Client-Side Early Warning Dashboard (Role 3)"]
-        dash["dashboard/pravahai_dashboard.html<br/>• Zero-Backend Browser Execution<br/>• Interactive Topo Catchment SVG Map<br/>• 30s Real-Time Simulation Engine<br/>• Multi-Axis Chart.js Telemetry<br/>• August 2018 Mega-Flood Replay"]
+        dash["dashboard/pravahai_dashboard.html<br/>• Zero-Backend Browser Execution<br/>• Interactive Leaflet.js GIS Map (Topo/Satellite/Clean)<br/>• Animated Pulsing Beacon Markers & Catchment Buffers<br/>• 30s Real-Time Simulation Engine<br/>• Multi-Axis Chart.js Telemetry<br/>• August 2018 Mega-Flood Replay"]
         alert["3-Tier Early Warning Engine<br/>• SAFE (Score < 40)<br/>• WATCH (Score 40-79)<br/>• HIGH RISK (Score ≥ 80 / Thr: 0.8)"]
     end
 
@@ -165,7 +165,8 @@ FlashFlood_SIH/
 ├── train_models.py                     # Python model training & evaluation script (Logistic Reg vs RF)
 ├── open_dashboard.bat                  # One-click Windows dashboard launcher
 ├── dashboard/                          # Interactive early warning frontend
-│   ├── pravahai_dashboard.html         # Main operational early warning dashboard (SVG map, Chart.js)
+│   ├── pravahai_dashboard.html         # Main operational early warning dashboard (Leaflet GIS map, Chart.js)
+│   ├── style.css                       # Dedicated stylesheet: design tokens, layouts, Leaflet markers
 │   ├── prahari_prototype.html          # Baseline prototype dashboard
 │   ├── prahari_inference.js            # Client-side inference wrapper
 │   └── prahari_rf_model.js             # Client-side Random Forest decision engine
@@ -217,7 +218,7 @@ No Python, Node.js, or database servers required. The operational dashboard runs
    ```
 
 #### Interactive Dashboard Capabilities:
-- **Real-Time Catchment SVG Map**: View the 5 CWC stations colored by current risk level. Click any station to inspect its live hydrologic state.
+- **Interactive Leaflet.js GIS Map**: High-resolution geospatial map of Kerala with one-click basemap switching (**🏔️ Topographic Shaded Relief**, **🛰️ Aerial Satellite Imagery**, and **🗺️ Clean Carto**). Features animated radar pulse beacons, 12km catchment danger buffer circles, Western Ghats ridge corridor lines, and bidirectional pan/zoom synchronization with the telemetry panel.
 - **30-Second Continuous Telemetry Engine**: Simulates realistic right-skewed rainfall bursts, river runoff lag, and stochastic sensor outages.
 - **Simulate Storm Event**: Click **"Simulate heavy rainfall event"** to trigger a severe monsoonal deluge and watch the model transition from `SAFE` $\rightarrow$ `WATCH` $\rightarrow$ `HIGH RISK`.
 - **Live Multi-Axis Chart**: Tracks same-day precipitation ($mm$) against river discharge ($m^3/s$) in real time.
